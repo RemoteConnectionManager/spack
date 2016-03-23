@@ -61,6 +61,8 @@ class Metis(Package):
 
         if '+shared' in spec:
             options.append('-DSHARED:BOOL=ON')
+            options.append('-DCMAKE_CXX_FLAGS=-fPIC')
+            options.append('-DCMAKE_C_FLAGS=-fPIC')
 
         if '+debug' in spec:
             options.extend(['-DDEBUG:BOOL=ON',
