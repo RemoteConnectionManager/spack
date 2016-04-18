@@ -43,6 +43,7 @@ class Parmetis(Package):
     variant('gdb', default=False, description='Enables gdb support')
 
     depends_on('cmake@2.8:', type='build')  # build dependency
+    depends_on('libxml2')  
     depends_on('mpi')
     depends_on('metis@5:')
 
