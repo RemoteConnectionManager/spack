@@ -87,6 +87,7 @@ class NetlibLapack(Package):
             '-DCMAKE_BUILD_TYPE:STRING=%s' % (
                 'Debug' if '+debug' in spec else 'Release'),
             '-DLAPACKE:BOOL=%s' % ('ON' if '+lapacke' in spec else 'OFF')]
+            '-DVERBOSE_MAKEFILE=ON']
         if spec.satisfies('@3.6.0:'):
             cmake_args.extend(['-DCBLAS=ON'])  # always build CBLAS
 
