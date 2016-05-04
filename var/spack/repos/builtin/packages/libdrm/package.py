@@ -39,11 +39,16 @@ class Libdrm(Package):
 
     depends_on('libpciaccess@0.10:')
     depends_on('libpthread-stubs')
+    depends_on('libpciaccess')
 
+    variant('nouveau', default=False, description="compile nouveau devices")
     def install(self, spec, prefix):
         configure('--prefix={0}'.format(prefix),
                   '--enable-static',
                   'LIBS=-lrt')  # This fixes a bug with `make check`
+        if "+nouveau" in self.spec and self.spec.satisfies("@2.4.33"):
+            options.append("--enable-nouveau-experimental-api")
+        configure(*options)
 
         make()
         make('check')
