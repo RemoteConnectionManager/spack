@@ -89,10 +89,15 @@ class Openmpi(Package):
     # TODO : variant support for alps, loadleveler  is missing
     variant('tm', default=False,
             description='Build TM (Torque, PBSPro, and compatible) support')
+    # TODO : this is a hack, to be removed when variant will support string
+    variant('tm_custom', default=False,
+            description='tm_custom void module used for PBS install path')
     variant('slurm', default=False,
             description='Build SLURM scheduler component')
 
     variant('sqlite3', default=False, description='Build sqlite3 support')
+    variant('hwloc', default=True, description='Use hwloc')
+    variant('dlopen', default=True, description='Use dlopen')
 
     variant('vt', default=True,
             description='Build support for contributed package vt')
@@ -102,8 +107,9 @@ class Openmpi(Package):
     provides('mpi@:2.2', when='@1.6.5')
     provides('mpi@:3.0', when='@1.7.5:')
 
-    depends_on('hwloc')
+    depends_on('hwloc', when='+hwloc')
     depends_on('sqlite', when='+sqlite3')
+    depends_on('tm', when='+tm_custom')
 
     def url_for_version(self, version):
         return "http://www.open-mpi.org/software/ompi/v%s/downloads/openmpi-%s.tar.bz2" % (version.up_to(2), version)  # NOQA: ignore=E501
@@ -147,7 +153,8 @@ class Openmpi(Package):
 
     def install(self, spec, prefix):
         config_args = ["--prefix=%s" % prefix,
-                       "--with-hwloc=%s" % spec['hwloc'].prefix,
+                       "--with-hwloc=%s" % spec[
+                           'hwloc'].prefix if '+hwloc' in spec else '',
                        "--enable-shared",
                        "--enable-static"]
 
@@ -157,7 +164,9 @@ class Openmpi(Package):
         # Variant based arguments
         config_args.extend([
             # Schedulers
-            '--with-tm' if '+tm' in spec else '--without-tm',
+            '--with-tm' if '+tm' in spec else
+            '--with-tm=%s' % spec['tm'].prefix if '+tm_custom' in spec
+            else '--without-tm',
             '--with-slurm' if '+slurm' in spec else '--without-slurm',
             # Fabrics
             '--with-psm' if '+psm' in spec else '--without-psm',
@@ -167,7 +176,10 @@ class Openmpi(Package):
             '--enable-mpi-thread-multiple' if '+thread_multiple' in spec else '--disable-mpi-thread-multiple',  # NOQA: ignore=E501
             '--with-pmi' if '+pmi' in spec else '--without-pmi',
             '--with-sqlite3' if '+sqlite3' in spec else '--without-sqlite3',
-            '--enable-vt' if '+vt' in spec else '--disable-vt'
+            '--enable-vt' if '+vt' in spec else '--disable-vt',
+            "--with-hwloc=%s" % spec['hwloc'].prefix if '+hwloc' in spec
+            else '',
+            '--disable-dlopen' if '+dlopen' not in spec else ''
         ])
         if '+verbs' in spec:
             path = _verbs_dir()
