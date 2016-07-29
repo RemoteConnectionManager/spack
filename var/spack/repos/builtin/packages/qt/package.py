@@ -60,6 +60,7 @@ class Qt(Package):
     depends_on("libpng", when='@4:')
     depends_on("libmng")
     depends_on("jpeg")
+    depends_on("openssl", when='@5:')
 
     # Webkit
     # depends_on("gperf")
