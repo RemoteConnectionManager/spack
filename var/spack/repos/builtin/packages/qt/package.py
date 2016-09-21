@@ -74,6 +74,9 @@ class Qt(Package):
     depends_on("libpng", when='@4:')
     depends_on("libmng")
     depends_on("jpeg")
+    depends_on("fontconfig",when='@5.7:')
+    #add fontconfig dependency needed for correct font setup: 
+    #on linux Mint without fontconfig-dev installed
     depends_on("icu4c")
 
     # OpenGL hardware acceleration
