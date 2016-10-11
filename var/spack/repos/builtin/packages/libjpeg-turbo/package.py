@@ -35,6 +35,7 @@ class LibjpegTurbo(AutotoolsPackage):
     url      = "http://downloads.sourceforge.net/libjpeg-turbo/libjpeg-turbo-1.3.1.tar.gz"
 
     version('1.5.0', '3fc5d9b6a8bce96161659ae7a9939257')
+    version('1.4.2', '86b0d5f7507c2e6c21c00219162c3c44')
     version('1.3.1', '2c3a68129dac443a72815ff5bb374b05')
 
     provides('jpeg')
