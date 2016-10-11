@@ -37,6 +37,7 @@ class LibjpegTurbo(Package):
     version('1.5.90', '85f7f9c377b70cbf48e61726097d4efa')
     version('1.5.3', '7c82f0f6a3130ec06b8a4d0b321cbca3')
     version('1.5.0', '3fc5d9b6a8bce96161659ae7a9939257')
+    version('1.4.2', '86b0d5f7507c2e6c21c00219162c3c44')
     version('1.3.1', '2c3a68129dac443a72815ff5bb374b05')
 
     provides('jpeg')
