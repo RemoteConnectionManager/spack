@@ -28,10 +28,11 @@ from spack import *
 class Paraview(Package):
     homepage = 'http://www.paraview.org'
     url      = 'http://www.paraview.org/files/v5.0/ParaView-v'
-    _url_str = 'http://www.paraview.org/files/v%s/ParaView-v%s-source.tar.gz'
+    _url_str = 'http://www.paraview.org/files/v%s/ParaView-v%s.tar.gz'
 
     version('4.4.0', 'fa1569857dd680ebb4d7ff89c2227378')
     version('5.0.0', '4598f0b421460c8bbc635c9a1c3bdbee')
+    version('5.1.0', 'ce7263d8c896f6cc78e6a85a93c789c6')
 
     variant('python', default=False, description='Enable Python support')
 
@@ -42,6 +43,8 @@ class Paraview(Package):
     variant('osmesa', default=False, description='Enable OSMesa support')
     variant('qt', default=False, description='Enable Qt support')
     variant('opengl2', default=False, description='Enable OpenGL2 backend')
+    variant('catalyst', default=False, description='Enable Catalyst')
+    variant('install_dev_files', default=False, description='Install dev files')
 
     depends_on('python@2:2.7', when='+python')
     depends_on('py-numpy', when='+python', type='run')
@@ -102,6 +105,8 @@ class Paraview(Package):
             feature_args.append(
                 '-DVTK_RENDERING_BACKEND:STRING=%s' %
                 feature_to_bool('+opengl2', 'OpenGL2', 'OpenGL'))
+            feature_args.append('-DPARAVIEW_ENABLE_CATALYST:BOOL=%s' % feature_to_bool('+catalyst'))
+            feature_args.append('-DPARAVIEW_INSTALL_DEVELOPMENT_FILES:BOOL=%s' % feature_to_bool('+install_dev_files'))
 
             feature_args.extend(std_cmake_args)
 
