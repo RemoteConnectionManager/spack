@@ -46,6 +46,7 @@ class Paraview(CMakePackage):
     variant('osmesa', default=False, description='Enable OSMesa support')
     variant('qt', default=False, description='Enable Qt (gui) support')
     variant('opengl2', default=True, description='Enable OpenGL2 backend')
+    variant('catalyst', default=False, description='Enable Catalyst')
 
     depends_on('python@2:2.8', when='+python')
     depends_on('py-numpy', when='+python', type='run')
