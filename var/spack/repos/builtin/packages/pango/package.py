@@ -43,6 +43,11 @@ class Pango(Package):
     depends_on("cairo")
     depends_on("glib")
 
+    def url_for_version(self, version):
+        """Handle pango version-based custom URLs."""
+        return self.list_url + '/%s/pango-%s.tar.xz' % (version.up_to(2), version)
+
+
     def install(self, spec, prefix):
         configure("--prefix=%s" % prefix)
         make()
