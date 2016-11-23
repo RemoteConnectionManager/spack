@@ -46,6 +46,14 @@ class Pango(Package):
     depends_on("cairo~X", when='~X')
     depends_on("cairo+X", when='+X')
     depends_on("glib")
+    depends_on('libx11')
+    depends_on('libice')
+    depends_on('libxext')
+    depends_on('libxfixes')
+    depends_on('libxdamage')
+    depends_on('libxrender')
+    depends_on('libsm')
+
 
     def url_for_version(self, version):
         """Handle pango version-based custom URLs."""
