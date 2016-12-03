@@ -23,6 +23,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 ##############################################################################
 from spack import *
+import llnl.util.tty as tty
 
 
 class Mesa(Package):
@@ -39,6 +40,13 @@ class Mesa(Package):
     depends_on('py-mako@0.3.4:')
     depends_on('flex@2.5.35:', type='build')
     depends_on('bison@2.4.1:', type='build')
+
+    variant('gallium', default=False, description="compile with gallium llvm sw rendering")
+    variant('drm', default=True, description="compile with drm")
+    
+    depends_on("llvm@3.0", when='@8.0.5~gallium')
+    depends_on("libxml2+python", when='@8.0.5~gallium') #
+    depends_on("llvm", when='@9:+gallium')
 
     # For DRI and hardware acceleration
     depends_on('libpthread-stubs')
@@ -60,8 +68,37 @@ class Mesa(Package):
     # TODO: Add package for systemd, provides libudev
     # Using the system package manager to install systemd didn't work for me
 
+    def url_for_version(self, version):
+        """Handle mesa version-based custom URLs."""
+        latest_mver = '11'
+
+        if version < Version(latest_mver):
+            base = self.base_url +"/older-versions/%s.x" % ( version.up_to(1) )
+        else:
+            base=self.base_url 
+        if version > Version('10.4') :
+            name='mesa'
+        else:
+            name='MesaLib'
+        ret=base + "/%s/%s-%s.tar.gz" % ( version,name,version)
+        return ret
+
+    def check_variants(self,var='',ver='',ref=''):
+        if var and ver :
+            error = "to be safe avoid '{variant}' with version '{version}' see:\n {reference}"
+            if var in self.spec and self.spec.satisfies(ver):
+                raise RuntimeError(error.format(variant=var,version=ver,reference=ref))
+
     def install(self, spec, prefix):
         configure('--prefix={0}'.format(prefix))
+        self.check_variants(
+            var='+gallium',
+            ver='@:9.2.2',
+            ref='http://www.paraview.org/Wiki/ParaView/ParaView_And_Mesa_3D')
+      
+        options = ['-prefix=%s' % prefix]
+
+        configure(*options)
 
         make()
         make('install')
