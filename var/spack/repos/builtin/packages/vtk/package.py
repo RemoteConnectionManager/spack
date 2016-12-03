@@ -41,6 +41,7 @@ class Vtk(Package):
     # VTK7 defaults to OpenGL2 rendering backend
     variant('opengl2', default=True, description='Build with OpenGL2 instead of OpenGL as rendering backend')
     variant('python', default=False, description='Build the python modules')
+    variant('examples', default=False, description='Build examples')
 
     patch('gcc.patch')
 
@@ -78,6 +79,7 @@ class Vtk(Package):
                 '-DVTK_QT_VERSION:STRING={0}'.format(qt_ver),
                 '-DQT_QMAKE_EXECUTABLE:PATH={0}/qmake'.format(qt_bin),
                 '-DVTK_Group_Qt:BOOL=ON',
+                '-DBUILD_EXAMPLES={0}'.format(feature_to_bool('examples'))
             ])
 
             # NOTE: The following definitions are required in order to allow
