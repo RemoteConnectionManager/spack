@@ -22,31 +22,45 @@
 # License along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 ##############################################################################
+#
+# This is a template package file for Spack.  We've put "FIXME"
+# next to all the things you'll want to change. Once you've handled
+# them, you can save this file and test your package like this:
+#
+#     spack install pam
+#
+# You can edit this file again by typing:
+#
+#     spack edit pam
+#
+# See the Spack documentation for more information on packaging.
+# If you submit this package back to Spack as a pull request,
+# please first remove this boilerplate and all FIXME comments.
+#
 from spack import *
 
 
-class LibjpegTurbo(Package):
-    """libjpeg-turbo is a fork of the original IJG libjpeg which uses SIMD to
-       accelerate baseline JPEG compression and decompression. libjpeg is a
-       library that implements JPEG image encoding, decoding and
-       transcoding."""
+class Pam(Package):
+    """FIXME: Put a proper description of your package here."""
 
-    homepage = "http://libjpeg-turbo.virtualgl.org"
-    url      = "http://downloads.sourceforge.net/libjpeg-turbo/libjpeg-turbo-1.3.1.tar.gz"
+    # FIXME: Add a proper url for your package's homepage here.
+    homepage = "http://www.example.com"
+    url      = "http://linux-pam.org/library/Linux-PAM-1.3.0.tar.bz2"
 
-    version('1.5.1', '55deb139b0cac3c8200b75d485fc13f3')
-    version('1.5.0', '3fc5d9b6a8bce96161659ae7a9939257', preferred=True)
-    version('1.4.2', '86b0d5f7507c2e6c21c00219162c3c44')
-    version('1.3.1', '2c3a68129dac443a72815ff5bb374b05')
+    version('1.3.0', 'da4b2289b7cfb19583d54e9eaaef1c3a')
+    version('1.2.1', '9dc53067556d2dd567808fd509519dd6')
+    version('1.2.0', 'ee4a480d77b341c99e8b1375f8f180c0')
 
-    # Can use either of these. But in the current version of the package
-    # only nasm is used. In order to use yasm an environmental variable
-    # NASM must be set.
-    # TODO: Implement the selection between two supported assemblers.
-    # depends_on("yasm", type='build')
-    depends_on("nasm", type='build')
+    # FIXME: Add dependencies if required.
+    # depends_on('foo')
 
     def install(self, spec, prefix):
-        configure("--prefix=" + prefix)
+        # FIXME: Modify the configure line to suit your build system here.
+        configure(
+            '--prefix={0}'.format(prefix),
+            '--includedir={0}/include/security'.format(prefix)
+        )
+
+        # FIXME: Add logic to build and install here.
         make()
-        make("install")
+        make('install')
