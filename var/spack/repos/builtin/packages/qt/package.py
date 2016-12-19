@@ -207,8 +207,6 @@ class Qt(Package):
                 '-opengl','desktop',
                 '-no-xinerama',
                 '-no-xrandr',
-                '-no-pulseaudio',
-                '-no-alsa',
                 '-no-xinput'
             ])
 
