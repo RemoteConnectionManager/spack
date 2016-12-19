@@ -80,7 +80,8 @@ class Qt(Package):
     depends_on("icu4c")
 
     # OpenGL hardware acceleration
-    depends_on("mesa", when='@4:+mesa')
+    depends_on("mesa+gallium", when='@4:+mesa')
+    depends_on("python", when='@4:+mesa', type='build')
     depends_on("libxcb", when=sys.platform != 'darwin')
 
     # Webkit
@@ -201,6 +202,16 @@ class Qt(Package):
                 '-no-alsa',
             ])
 
+        if '@4:' in self.spec and  '+mesa' in self.spec:
+            config_args.extend([
+                '-opengl','desktop',
+                '-no-xinerama',
+                '-no-xrandr',
+                '-no-pulseaudio',
+                '-no-alsa',
+                '-no-xinput'
+            ])
+
         if '@4' in self.spec and sys.platform == 'darwin':
             sdkpath = which('xcrun')('--show-sdk-path',
                                      # XXX(macos): 10.11 SDK fails to configure
@@ -243,6 +254,7 @@ class Qt(Package):
         configure('-fast',
                   '-{0}gtkstyle'.format('' if '+gtk' in self.spec else 'no-'),
                   '-{0}webkit'.format('' if '+webkit' in self.spec else 'no-'),
+                  '-{0}script'.format('' if '+webkit' in self.spec else 'no-'),
                   '-arch', str(self.spec.architecture.target),
                   *self.common_config_args)
 
@@ -266,6 +278,7 @@ class Qt(Package):
         if '~webkit' in self.spec:
             config_args.extend([
                 '-skip', 'webengine',
+                '-skip', 'script'
             ])
 
         configure('-no-eglfs',
