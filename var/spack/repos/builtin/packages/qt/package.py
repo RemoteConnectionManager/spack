@@ -74,7 +74,9 @@ class Qt(Package):
     depends_on("libpng", when='@4:')
     depends_on("libmng")
     depends_on("jpeg")
-    depends_on("fontconfig",when='@5.7:')
+    depends_on("fontconfig",when='@4:')
+    depends_on("freetype",when='@4:')
+    depends_on("libxrender",when='@4:')
     #add fontconfig dependency needed for correct font setup: 
     #on linux Mint without fontconfig-dev installed
     depends_on("icu4c")
@@ -205,10 +207,14 @@ class Qt(Package):
         if '@4:' in self.spec and  '+mesa' in self.spec:
             config_args.extend([
                 '-opengl','desktop',
-                '-no-xinerama',
                 '-no-xrandr',
-                '-no-xinput'
             ])
+            if not '@5:' in self.spec:
+                config_args.extend([
+                    '-no-xinerama',
+                    '-no-xinput'
+                ])
+
 
         if '@4' in self.spec and sys.platform == 'darwin':
             sdkpath = which('xcrun')('--show-sdk-path',
