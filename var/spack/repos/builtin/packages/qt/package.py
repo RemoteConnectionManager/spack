@@ -77,6 +77,7 @@ class Qt(Package):
     depends_on("fontconfig",when='@4:')
     depends_on("freetype",when='@4:')
     depends_on("libxrender",when='@4:')
+    depends_on("pcre",when='@5:')
     #add fontconfig dependency needed for correct font setup: 
     #on linux Mint without fontconfig-dev installed
     depends_on("icu4c")
@@ -90,7 +91,7 @@ class Qt(Package):
     depends_on("flex", when='+webkit', type='build')
     depends_on("bison", when='+webkit', type='build')
     depends_on("gperf", when='+webkit')
-    depends_on("fontconfig", when='+webkit')
+    #depends_on("fontconfig", when='+webkit')
 
     # Multimedia
     # depends_on("gstreamer", when='+multimedia')
