@@ -78,6 +78,8 @@ class Qt(Package):
     depends_on("freetype",when='@4:')
     depends_on("libxrender",when='@4:')
     depends_on("pcre",when='@5:')
+    depends_on("harfbuzz",when='@5:')
+    depends_on("sqlite",when='@5:')
     #add fontconfig dependency needed for correct font setup: 
     #on linux Mint without fontconfig-dev installed
     depends_on("icu4c")
@@ -86,6 +88,15 @@ class Qt(Package):
     depends_on("mesa+gallium", when='@4:+mesa')
     depends_on("python", when='@4:+mesa', type='build')
     depends_on("libxcb", when=sys.platform != 'darwin')
+    depends_on("xinput", when=sys.platform != 'darwin')
+    depends_on("xkbcomp", when=sys.platform != 'darwin')
+    depends_on("xcb-util-image",when='@5:')
+    depends_on("xcb-util-renderutil",when='@5:')
+    depends_on("xcb-util-keysyms",when='@5:')
+    depends_on("xcb-util-cursor",when='@5:')
+    depends_on("xcb-util-errors",when='@5:')
+    depends_on("xcb-util-wm",when='@5:')
+    depends_on("xcb-util",when='@5:')
 
     # Webkit
     depends_on("flex", when='+webkit', type='build')
