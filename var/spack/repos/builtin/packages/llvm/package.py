@@ -68,6 +68,8 @@ class Llvm(Package):
     variant('link_dylib', default=False,
             description="Build and link the libLLVM shared library rather "
             "than static")
+    variant('utils', default=False,
+            description="LLVM_INSTALL_UTILS  ")
     variant('all_targets', default=True,
             description="Build all supported targets, default targets "
             "<current arch>,NVPTX,AMDGPU,CppBackend")
@@ -280,8 +282,13 @@ class Llvm(Package):
                          when='@%(version)s' % release,
                          placement=resources[name].get('placement', None))
 
+    def setup_environment(self, spack_env, run_env):
+        cmake_build_lib = join_path(
+            self.stage.source_path,'spack-build','lib')
+        spack_env.prepend_path('LD_LIBRARY_PATH',cmake_build_lib) 
+        spack_env.set('CXXFLAGS', self.compiler.cxx11_flag)
     def install(self, spec, prefix):
-        env['CXXFLAGS'] = self.compiler.cxx11_flag
+        #env['CXXFLAGS'] = self.compiler.cxx11_flag
         cmake_args = [arg for arg in std_cmake_args if 'BUILD_TYPE' not in arg]
 
         build_type = 'RelWithDebInfo' if '+debug' in spec else 'Release'
@@ -318,6 +325,9 @@ class Llvm(Package):
         if '+link_dylib' in spec:
             cmake_args.append('-DLLVM_LINK_LLVM_DYLIB:Bool=ON')
 
+        if '+utils' in spec:
+            cmake_args.append('-DLLVM_INSTALL_UTILS:Bool=ON')
+
         if '+all_targets' not in spec:  # all is default on cmake
             targets = ['CppBackend', 'NVPTX', 'AMDGPU']
             if 'x86' in spec.architecture.target.lower():
@@ -344,6 +354,7 @@ class Llvm(Package):
                     'The lldb variant requires the `+clang` variant')
 
         with working_dir('spack-build', create=True):
+#            os.environ['LD_LIBRARY_PATH'] = os.getcwd() + '/lib'
             cmake(*cmake_args)
             make()
             make("install")
