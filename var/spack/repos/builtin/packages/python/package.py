@@ -44,6 +44,7 @@ class Python(Package):
     list_url = "https://www.python.org/downloads/"
     list_depth = 2
 
+    version('3.6.0', '3f7062ccf8be76491884d0e47ac8b251')
     version('3.5.2', '3fe8434643a78630c61c6464fe2e7e72')
     version('3.5.1', 'be78e48cdfc1a7ad90efff146dce6cfe')
     version('3.5.0', 'a56c0c0b45d75a0ec9c6dee933c41c36')
@@ -346,7 +347,8 @@ class Python(Package):
         spack_env.set('PYTHONHOME', prefix.strip('\n'))
 
         python_paths = []
-        for d in extension_spec.traverse(deptype=nolink, deptype_query='run'):
+        for d in extension_spec.traverse(
+                deptype=('build', 'run'), deptype_query='run'):
             if d.package.extends(self.spec):
                 python_paths.append(join_path(d.prefix,
                                               self.site_packages_dir))
