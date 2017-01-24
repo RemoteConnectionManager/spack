@@ -89,6 +89,14 @@ class Qt(Package):
     depends_on("libpng", when='@4:')
     depends_on("libmng")
     depends_on("jpeg")
+    depends_on("fontconfig",when='@4:')
+    depends_on("freetype",when='@4:')
+    depends_on("libxrender",when='@4:')
+    depends_on("pcre",when='@5:')
+    depends_on("harfbuzz",when='@5:')
+    depends_on("sqlite",when='@5:')
+    #add fontconfig dependency needed for correct font setup: 
+    #on linux Mint without fontconfig-dev installed
     depends_on("icu4c")
     # FIXME:
     # depends_on("freetype", when='@5.8:') and '-system-freetype'
@@ -99,14 +107,24 @@ class Qt(Package):
     depends_on("python", when='@5.7.0:', type='build')
 
     # OpenGL hardware acceleration
-    depends_on("mesa", when='@4:+mesa')
+    depends_on("mesa+gallium", when='@4:+mesa')
+    depends_on("python", when='@4:+mesa', type='build')
     depends_on("libxcb", when=sys.platform != 'darwin')
+    depends_on("xinput", when=sys.platform != 'darwin')
+    depends_on("xkbcomp", when=sys.platform != 'darwin')
+    depends_on("xcb-util-image",when='@5:')
+    depends_on("xcb-util-renderutil",when='@5:')
+    depends_on("xcb-util-keysyms",when='@5:')
+    depends_on("xcb-util-cursor",when='@5:')
+    depends_on("xcb-util-errors",when='@5:')
+    depends_on("xcb-util-wm",when='@5:')
+    depends_on("xcb-util",when='@5:')
 
     # Webkit
     depends_on("flex", when='+webkit', type='build')
     depends_on("bison", when='+webkit', type='build')
     depends_on("gperf", when='+webkit')
-    depends_on("fontconfig", when='+webkit')
+    #depends_on("fontconfig", when='+webkit')
 
     # Multimedia
     # depends_on("gstreamer", when='+multimedia')
@@ -239,6 +257,18 @@ class Qt(Package):
                 '-no-alsa',
             ])
 
+        if '@4:' in self.spec and  '+mesa' in self.spec:
+            config_args.extend([
+                '-opengl','desktop',
+                '-no-xrandr',
+            ])
+            if not '@5:' in self.spec:
+                config_args.extend([
+                    '-no-xinerama',
+                    '-no-xinput'
+                ])
+
+
         if '@4' in self.spec and sys.platform == 'darwin':
             config_args.append('-cocoa')
 
@@ -292,6 +322,7 @@ class Qt(Package):
         configure('-fast',
                   '-{0}gtkstyle'.format('' if '+gtk' in self.spec else 'no-'),
                   '-{0}webkit'.format('' if '+webkit' in self.spec else 'no-'),
+                  '-{0}script'.format('' if '+webkit' in self.spec else 'no-'),
                   '-arch', str(self.spec.architecture.target),
                   *self.common_config_args)
 
@@ -315,6 +346,7 @@ class Qt(Package):
         if '~webkit' in self.spec:
             config_args.extend([
                 '-skip', 'webengine',
+                '-skip', 'script'
             ])
 
         configure('-no-eglfs',
