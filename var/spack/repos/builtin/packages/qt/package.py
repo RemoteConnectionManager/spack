@@ -308,7 +308,20 @@ class Qt(Package):
                   '-{0}gtk'.format('' if '+gtk' in self.spec else 'no-'),
                   *config_args)
 
+    def validate(self, spec):
+        """
+        Checks if incompatible versions of openssl were specified
+
+        :param spec: spec of the package
+        :raises RuntimeError: in case of inconsistencies
+        """
+
+        if spec.satisfies('@:4.999') and spec.satisfies('^openssl@1.1:'):
+            msg = 'qt-.4 does not compile with openssl 1.1 '
+            raise RuntimeError(msg)
+
     def install(self, spec, prefix):
+        self.validate(spec)
         self.configure()
         make()
         make("install")
