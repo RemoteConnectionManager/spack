@@ -96,13 +96,13 @@ class Qt(Package):
     depends_on("libmng")
     depends_on("jpeg")
     depends_on("fontconfig",when='@4:')
+    # add fontconfig dependency needed for correct font setup: 
+    # tested on linux Mint without fontconfig-dev installed
     depends_on("freetype",when='@4:')
     depends_on("libxrender",when='@4:')
     depends_on("pcre",when='@5:')
     depends_on("harfbuzz",when='@5:')
     depends_on("sqlite",when='@5:')
-    #add fontconfig dependency needed for correct font setup: 
-    #on linux Mint without fontconfig-dev installed
     depends_on("icu4c")
     depends_on("fontconfig")
     depends_on("freetype")
@@ -134,7 +134,6 @@ class Qt(Package):
     depends_on("flex", when='+webkit', type='build')
     depends_on("bison", when='+webkit', type='build')
     depends_on("gperf", when='+webkit')
-    #depends_on("fontconfig", when='+webkit')
 
     # Multimedia
     # depends_on("gstreamer", when='+multimedia')
@@ -275,17 +274,16 @@ class Qt(Package):
                 '-no-alsa',
             ])
 
-        if '@4:' in self.spec and  '+mesa' in self.spec:
+        if '@4:' in self.spec and '+mesa' in self.spec:
             config_args.extend([
-                '-opengl','desktop',
+                '-opengl', 'desktop',
                 '-no-xrandr',
             ])
-            if not '@5:' in self.spec:
+            if '@5:' not in self.spec:
                 config_args.extend([
                     '-no-xinerama',
                     '-no-xinput'
                 ])
-
 
         if '@4' in self.spec and sys.platform == 'darwin':
             config_args.append('-cocoa')
