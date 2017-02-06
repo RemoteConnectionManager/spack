@@ -311,11 +311,12 @@ class Llvm(Package):
 
     def setup_environment(self, spack_env, run_env):
         cmake_build_lib = join_path(
-            self.stage.source_path,'spack-build','lib')
-        spack_env.prepend_path('LD_LIBRARY_PATH',cmake_build_lib) 
+            self.stage.source_path, 'spack-build', 'lib')
+        spack_env.prepend_path('LD_LIBRARY_PATH', cmake_build_lib) 
         spack_env.set('CXXFLAGS', self.compiler.cxx11_flag)
-    def install(self, spec, prefix):
-        #env['CXXFLAGS'] = self.compiler.cxx11_flag
+
+    def install(self, spec, prefix):        
+        # OLD CODE env['CXXFLAGS'] = self.compiler.cxx11_flag
         cmake_args = [arg for arg in std_cmake_args if 'BUILD_TYPE' not in arg]
 
         build_type = 'RelWithDebInfo' if '+debug' in spec else 'Release'
@@ -381,7 +382,7 @@ class Llvm(Package):
                     'The lldb variant requires the `+clang` variant')
 
         with working_dir('spack-build', create=True):
-#            os.environ['LD_LIBRARY_PATH'] = os.getcwd() + '/lib'
+            # NOT NEEDED os.environ['LD_LIBRARY_PATH'] = os.getcwd() + '/lib'
             cmake(*cmake_args)
             make()
             make("install")
