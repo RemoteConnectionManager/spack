@@ -67,7 +67,7 @@ import spack.store
 from spack.environment import EnvironmentModifications, validate
 from spack.util.environment import *
 from spack.util.executable import Executable, which
-
+from spack.modulecmd import get_modulecmd
 #
 # This can be set by the user to globally disable parallel builds.
 #
@@ -126,6 +126,9 @@ def load_module(mod):
     """
     # Create an executable of the module command that will output python code
     modulecmd = which('modulecmd')
+    if not modulecmd:
+        tty.msg("WARNING modulecmd command not found, now look for shell functions")
+        modulecmd = get_modulecmd()
     modulecmd.add_default_arg('python')
 
     # Read the module and remove any conflicting modules
@@ -133,13 +136,22 @@ def load_module(mod):
     # for ease of programming because unloading a module that is not
     # loaded does nothing.
     text = modulecmd('show', mod, output=str, error=str).split()
+    tty.msg("result of show "+str(mod)+" -->"+str(text)+"<--")
     for i, word in enumerate(text):
         if word == 'conflict':
-            exec(compile(modulecmd('unload', text[i + 1], output=str,
-                                   error=str), '<string>', 'exec'))
+	    tty.msg("WARNING unloading " + text[i + 1])
+	    res=modulecmd('unload', text[i + 1], output=str,
+                                   error=str)
+	    res_fix=res.split()[0]+' open('+res.split()[1]+')'
+	    tty.msg("WARNING res:"+str(res_fix))
+	    cc=compile(res_fix, '<string>', 'exec')
+ 	    tty.msg("WARNING cc:"+str(res))
+ 	    exec(cc)
+            #exec(compile(modulecmd('unload', text[i + 1], output=str,error=str), '<string>', 'exec'))
+    tty.msg("WARNING loading " + mod)
     # Load the module now that there are no conflicts
-    load = modulecmd('load', mod, output=str, error=str)
-    exec(compile(load, '<string>', 'exec'))
+    res = modulecmd('load', mod, output=str, error=str)
+    exec(compile(res.split()[0]+' open('+res.split()[1]+')', '<string>', 'exec'))
 
 
 def get_path_from_module(mod):
@@ -148,6 +160,9 @@ def get_path_from_module(mod):
     """
     # Create a modulecmd executable
     modulecmd = which('modulecmd')
+    if not modulecmd:
+        tty.msg("WARNING modulecmd command not found, now look for shell functions")
+        modulecmd = get_modulecmd()
     modulecmd.add_default_arg('python')
 
     # Read the module
