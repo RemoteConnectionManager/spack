@@ -48,6 +48,7 @@ class LibjpegTurbo(AutotoolsPackage):
     # TODO: Implement the selection between two supported assemblers.
     # depends_on("yasm", type='build')
     depends_on("nasm", type='build')
+    depends_on('jdk', when='+java')
     
     def configure_args(self):
         args = []
