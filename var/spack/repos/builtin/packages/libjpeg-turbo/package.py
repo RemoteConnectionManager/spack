@@ -35,9 +35,12 @@ class LibjpegTurbo(AutotoolsPackage):
     url      = "http://downloads.sourceforge.net/libjpeg-turbo/libjpeg-turbo-1.3.1.tar.gz"
 
     version('1.5.1', '55deb139b0cac3c8200b75d485fc13f3')
-    version('1.5.0', '3fc5d9b6a8bce96161659ae7a9939257', preferred=True)
+    version('1.5.0', '3fc5d9b6a8bce96161659ae7a9939257')
     version('1.4.2', '86b0d5f7507c2e6c21c00219162c3c44')
     version('1.3.1', '2c3a68129dac443a72815ff5bb374b05')
+
+    variant('java', default=False, description='Enable Java build')
+
 
     # Can use either of these. But in the current version of the package
     # only nasm is used. In order to use yasm an environmental variable
@@ -45,3 +48,10 @@ class LibjpegTurbo(AutotoolsPackage):
     # TODO: Implement the selection between two supported assemblers.
     # depends_on("yasm", type='build')
     depends_on("nasm", type='build')
+    
+    def configure_args(self):
+        args = []
+        if '+java' in self.spec:
+            args.append('--with-java')
+        return args
+    
