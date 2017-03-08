@@ -25,6 +25,7 @@
 
 import argparse
 
+import spack.cmd
 import spack.store
 import spack.modules
 from spack.util.pattern import Args
@@ -59,41 +60,50 @@ class ConstraintAction(argparse.Action):
         namespace.specs = self._specs
 
     def _specs(self, **kwargs):
-        specs = [s for s in spack.store.db.query(**kwargs)]
-        values = ' '.join(self.values)
-        if values:
-            specs = [x for x in specs if x.satisfies(values, strict=True)]
-        return specs
+        qspecs = spack.cmd.parse_specs(self.values)
+
+        # return everything for an empty query.
+        if not qspecs:
+            return spack.store.db.query()
+
+        # Return only matching stuff otherwise.
+        specs = set()
+        for spec in qspecs:
+            for s in spack.store.db.query(spec, **kwargs):
+                specs.add(s)
+        return sorted(specs)
 
 
 _arguments['constraint'] = Args(
-    'constraint', nargs='*', action=ConstraintAction,
-    help='Constraint to select a subset of installed packages')
+    'constraint', nargs=argparse.REMAINDER, action=ConstraintAction,
+    help='constraint to select a subset of installed packages')
 
 _arguments['module_type'] = Args(
-    '-m', '--module-type', help='Type of module files',
-    default='tcl', choices=spack.modules.module_types)
+    '-m', '--module-type',
+    choices=spack.modules.module_types.keys(),
+    default=spack.modules.module_types.keys()[0],
+    help='type of module files [default: %(default)s]')
 
 _arguments['yes_to_all'] = Args(
     '-y', '--yes-to-all', action='store_true', dest='yes_to_all',
-    help='Assume "yes" is the answer to every confirmation request.')
+    help='assume "yes" is the answer to every confirmation request')
 
 _arguments['recurse_dependencies'] = Args(
     '-r', '--dependencies', action='store_true', dest='recurse_dependencies',
-    help='Recursively traverse spec dependencies')
+    help='recursively traverse spec dependencies')
 
 _arguments['clean'] = Args(
     '--clean', action='store_false', dest='dirty',
-    help='Clean environment before installing package.')
+    help='clean environment before installing package')
 
 _arguments['dirty'] = Args(
     '--dirty', action='store_true', dest='dirty',
-    help='Do NOT clean environment before installing.')
+    help='do NOT clean environment before installing')
 
 _arguments['long'] = Args(
     '-l', '--long', action='store_true',
-    help='Show dependency hashes as well as versions.')
+    help='show dependency hashes as well as versions')
 
 _arguments['very_long'] = Args(
     '-L', '--very-long', action='store_true',
-    help='Show full dependency hashes as well as versions.')
+    help='show full dependency hashes as well as versions')
