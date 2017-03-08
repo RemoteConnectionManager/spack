@@ -33,6 +33,8 @@ class Intltool(Package):
     homepage  = 'https://freedesktop.org/wiki/Software/intltool/'
 
     version('0.51.0',    '12e517cac2b57a0121cda351570f1e63')
+    depends_on('perl-xml-parser',type='build')
+    depends_on('perl')
 
     def url_for_version(self, version):
         """Handle version-based custom URLs."""
