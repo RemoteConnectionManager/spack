@@ -33,7 +33,7 @@ class PyCffi(PythonPackage):
 
     version('1.1.2', 'ca6e6c45b45caa87aee9adc7c796eaea')
 
-    depends_on('py-setuptools', type='build')
+    depends_on('py-setuptools', type=('build', 'run'))
     depends_on('py-pycparser', type=('build', 'run'))
     depends_on('libffi')
 
@@ -45,3 +45,4 @@ class PyCffi(PythonPackage):
         # spack compiler wrapper plus a few extra flags necessary for
         # building the shared library.
         spack_env.set('LDSHARED', "{0} -shared -pthread".format(spack_cc))
+        #spack_env.set('PKG_CONFIG_PATH', os.path.jhhself.spec['libffi'].prefix.lib.pkgconfig)
