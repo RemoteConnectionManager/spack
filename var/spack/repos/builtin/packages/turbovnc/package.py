@@ -56,9 +56,9 @@ class Turbovnc(CMakePackage):
     depends_on("libxdamage")
     depends_on("libxcursor")
     depends_on('libxkbfile')
-    depends_on('xkeyboard-config')
-    depends_on('xkbcomp', type="run")
-    depends_on('xkbdata', type='build')
+#    depends_on('xkeyboard-config')
+#    depends_on('xkbcomp', type="run")
+    depends_on('xkbdata', type=['build', 'run'])
 
     #def url_for_version(self, version):
         #"""Handle TurboVNC's version-based custom URLs."""
