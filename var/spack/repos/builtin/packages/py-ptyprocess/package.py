@@ -33,4 +33,4 @@ class PyPtyprocess(PythonPackage):
 
     version('0.5.1', '94e537122914cc9ec9c1eadcd36e73a1')
 
-    depends_on('py-setuptools', type='build')
+    depends_on('py-setuptools', type=('build', 'link'))
