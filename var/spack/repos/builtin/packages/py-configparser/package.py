@@ -39,3 +39,5 @@ class PyConfigparser(PythonPackage):
     # This dependency breaks concretization
     # See https://github.com/spack/spack/issues/2793
     # depends_on('py-ordereddict', when='^python@:2.6', type=('build', 'run'))
+    
+    patch('backports.patch')
