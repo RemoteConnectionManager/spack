@@ -23,6 +23,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 ##############################################################################
 from spack import *
+import os
 
 
 class LibjpegTurbo(AutotoolsPackage):
@@ -41,18 +42,24 @@ class LibjpegTurbo(AutotoolsPackage):
 
     variant('java', default=False, description='Enable Java build')
 
-
     # Can use either of these. But in the current version of the package
     # only nasm is used. In order to use yasm an environmental variable
     # NASM must be set.
     # TODO: Implement the selection between two supported assemblers.
     # depends_on("yasm", type='build')
     depends_on("nasm", type='build')
-    depends_on('jdk', when='+java')
-    
+    depends_on('jdk', when='+java', type='build')
+
     def configure_args(self):
         args = []
         if '+java' in self.spec:
             args.append('--with-java')
+            # args.append('--with-java=' + self.spec['jdk'].prefix)
         return args
-    
+
+    def setup_environment(self, spack_env, run_env):
+        spack_env.set(
+            'JNI_CFLAGS',
+            '-I' + os.path.join(self.spec['jdk'].prefix, 'include') + ' ' +
+            '-I' + os.path.join(self.spec['jdk'].prefix, 'include', 'linux'),
+            separator=' ')
