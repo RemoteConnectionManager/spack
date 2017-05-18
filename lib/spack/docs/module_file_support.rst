@@ -218,7 +218,7 @@ As well as directly loading modules, scripts to load modules may be made with th
 
     $ spack module loads --dependencies <spec>
 
-An equivalent alternative is:
+An equivalent alternative using `process substitution <http://tldp.org/LDP/abs/html/process-sub.html>`_ is:
 
 .. code-block :: console
 
