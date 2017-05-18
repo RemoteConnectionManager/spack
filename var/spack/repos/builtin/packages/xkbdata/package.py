@@ -35,3 +35,6 @@ class Xkbdata(AutotoolsPackage):
     version('1.0.1', 'a7e0fbc9cc84c621243c777694388064')
 
     depends_on('xkbcomp', type='build')
+
+    def setup_dependent_environment(self, spack_env, run_env, dspec):
+         run_env.set('XKB_BASE_DIRECTORY', join_path(self.prefix,'share','X11','xkb'))
