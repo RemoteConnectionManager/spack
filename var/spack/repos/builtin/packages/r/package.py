@@ -40,6 +40,7 @@ class R(AutotoolsPackage):
 
     extendable = True
 
+    version('3.3.3', '0ac211ec15e813a24f8f4a5a634029a4')
     version('3.3.2', '2437014ef40641cdc9673e89c040b7a8')
     version('3.3.1', 'f50a659738b73036e2f5635adbd229c5')
     version('3.3.0', '5a7506c8813432d1621c9725e86baf7a')
@@ -75,8 +76,6 @@ class R(AutotoolsPackage):
     depends_on('freetype')
     depends_on('tcl')
     depends_on('tk')
-    depends_on('tk+X', when='+X')
-    depends_on('tk~X', when='~X')
     depends_on('libx11', when='+X')
     depends_on('libxt', when='+X')
     depends_on('curl')
@@ -149,11 +148,11 @@ class R(AutotoolsPackage):
     def r_lib_dir(self):
         return join_path('rlib', 'R', 'library')
 
-    def setup_dependent_environment(self, spack_env, run_env, extension_spec):
+    def setup_dependent_environment(self, spack_env, run_env, dependent_spec):
         # Set R_LIBS to include the library dir for the
         # extension and any other R extensions it depends on.
         r_libs_path = []
-        for d in extension_spec.traverse(
+        for d in dependent_spec.traverse(
                 deptype=('build', 'run'), deptype_query='run'):
             if d.package.extends(self.spec):
                 r_libs_path.append(join_path(d.prefix, self.r_lib_dir))
@@ -167,11 +166,11 @@ class R(AutotoolsPackage):
         # determine how many jobs can actually be started.
         spack_env.set('MAKEFLAGS', '-j{0}'.format(make_jobs))
 
-        # For run time environment set only the path for extension_spec and
+        # For run time environment set only the path for dependent_spec and
         # prepend it to R_LIBS
-        if extension_spec.package.extends(self.spec):
+        if dependent_spec.package.extends(self.spec):
             run_env.prepend_path('R_LIBS', join_path(
-                extension_spec.prefix, self.r_lib_dir))
+                dependent_spec.prefix, self.r_lib_dir))
 
     def setup_environment(self, spack_env, run_env):
         run_env.prepend_path('LIBRARY_PATH',
@@ -181,7 +180,7 @@ class R(AutotoolsPackage):
         run_env.prepend_path('CPATH',
                              join_path(self.prefix, 'rlib', 'R', 'include'))
 
-    def setup_dependent_package(self, module, ext_spec):
+    def setup_dependent_package(self, module, dependent_spec):
         """Called before R modules' install() methods. In most cases,
         extensions will only need to have one line:
             R('CMD', 'INSTALL', '--library={0}'.format(self.module.r_lib_dir),
@@ -191,9 +190,9 @@ class R(AutotoolsPackage):
         module.R = Executable(join_path(self.spec.prefix.bin, 'R'))
 
         # Add variable for library directry
-        module.r_lib_dir = join_path(ext_spec.prefix, self.r_lib_dir)
+        module.r_lib_dir = join_path(dependent_spec.prefix, self.r_lib_dir)
 
         # Make the site packages directory for extensions, if it does not exist
         # already.
-        if ext_spec.package.is_extension:
+        if dependent_spec.package.is_extension:
             mkdirp(module.r_lib_dir)
