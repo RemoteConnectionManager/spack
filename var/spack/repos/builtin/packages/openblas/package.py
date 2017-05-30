@@ -56,19 +56,16 @@ class Openblas(MakefilePackage):
     #  This patch is in a pull request to OpenBLAS that has not been handled
     #  https://github.com/xianyi/OpenBLAS/pull/915
     patch('openblas_icc.patch', when='%intel')
+    patch('openblas_icc_openmp.patch', when='%intel@16.0:')
+    patch('openblas_icc_fortran.patch', when='%intel@16.0:')
+
+    # Change file comments to work around clang 3.9 assembler bug
+    # https://github.com/xianyi/OpenBLAS/pull/982
+    patch('openblas0.2.19.diff', when='@0.2.19')
 
     parallel = False
 
-    @property
-    def blas_libs(self):
-        shared = True if '+shared' in self.spec else False
-        return find_libraries(
-            ['libopenblas'], root=self.prefix, shared=shared, recurse=True
-        )
-
-    @property
-    def lapack_libs(self):
-        return self.blas_libs
+    conflicts('%intel@16', when='@0.2.15:0.2.19')
 
     @run_before('edit')
     def check_compilers(self):
@@ -129,6 +126,7 @@ class Openblas(MakefilePackage):
         return self.make_defs + targets
 
     @run_after('build')
+    @on_package_attributes(run_tests=True)
     def check_build(self):
         make('tests', *self.make_defs)
 
@@ -141,6 +139,7 @@ class Openblas(MakefilePackage):
         return make_args + self.make_defs
 
     @run_after('install')
+    @on_package_attributes(run_tests=True)
     def check_install(self):
         spec = self.spec
         # Openblas may pass its own test but still fail to compile Lapack
@@ -151,13 +150,15 @@ class Openblas(MakefilePackage):
         blessed_file = join_path(os.path.dirname(self.module.__file__),
                                  'test_cblas_dgemm.output')
 
-        include_flags = ["-I%s" % join_path(spec.prefix, "include")]
-        link_flags = self.lapack_libs.ld_flags.split()
+        include_flags = spec['openblas'].headers.cpp_flags
+        link_flags = spec['openblas'].libs.ld_flags
         if self.compiler.name == 'intel':
-            link_flags.extend(["-lifcore"])
-        link_flags.extend(["-lpthread"])
+            link_flags += ' -lifcore'
+        link_flags += ' -lpthread'
         if '+openmp' in spec:
-            link_flags.extend([self.compiler.openmp_flag])
+            link_flags += ' ' + self.compiler.openmp_flag
 
-        output = compile_c_and_execute(source_file, include_flags, link_flags)
+        output = compile_c_and_execute(
+            source_file, [include_flags], link_flags.split()
+        )
         compare_output_file(output, blessed_file)
