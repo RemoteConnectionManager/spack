@@ -31,6 +31,8 @@ import spack.store
 import spack.cmd
 
 description = "show installed packages that depend on another"
+section = "basic"
+level = "long"
 
 
 def setup_parser(subparser):
@@ -45,9 +47,9 @@ def dependents(parser, args):
         tty.die("spack dependents takes only one spec.")
     spec = spack.cmd.disambiguate_spec(specs[0])
 
-    tty.msg("Dependents of %s" % spec.format('$_$@$%@$#', color=True))
+    tty.msg("Dependents of %s" % spec.format('$_$@$%@$/', color=True))
     deps = spack.store.db.installed_dependents(spec)
     if deps:
         spack.cmd.display_specs(deps)
     else:
-        print "No dependents"
+        print("No dependents")

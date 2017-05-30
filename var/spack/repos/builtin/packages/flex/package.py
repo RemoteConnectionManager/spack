@@ -23,6 +23,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 ##############################################################################
 from spack import *
+import os
 
 
 class Flex(AutotoolsPackage):
@@ -39,12 +40,15 @@ class Flex(AutotoolsPackage):
     version('2.6.0', '760be2ee9433e822b6eb65318311c19d')
     version('2.5.39', '5865e76ac69c05699f476515592750d7')
 
+    variant('lex', default=True,
+            description="Provide symlinks for lex and libl")
+
     depends_on('bison',         type='build')
     depends_on('gettext@0.19:', type='build')
     depends_on('help2man',      type='build')
 
     # Older tarballs don't come with a configure script
-    depends_on('m4',       type='build', when='@:2.6.0')
+    depends_on('m4',       type='build')
     depends_on('autoconf', type='build', when='@:2.6.0')
     depends_on('automake', type='build', when='@:2.6.0')
     depends_on('libtool',  type='build', when='@:2.6.0')
@@ -61,3 +65,16 @@ class Flex(AutotoolsPackage):
             url += "/archive/flex-{0}.tar.gz".format(version.dashed)
 
         return url
+
+    @run_after('install')
+    def symlink_lex(self):
+        if self.spec.satisfies('+lex'):
+            dso = dso_suffix
+            for dir, flex, lex in \
+                    ((self.prefix.bin, 'flex', 'lex'),
+                     (self.prefix.lib, 'libfl.a', 'libl.a'),
+                     (self.prefix.lib, 'libfl.' + dso, 'libl.' + dso)):
+                with working_dir(dir):
+                    if (os.path.isfile(flex) and not
+                            os.path.lexists(lex)):
+                        symlink(flex, lex)
