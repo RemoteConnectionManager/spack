@@ -32,7 +32,10 @@ class YamlCpp(CMakePackage):
     url      = "https://github.com/jbeder/yaml-cpp/archive/yaml-cpp-0.5.3.tar.gz"
 
     version('0.5.3', '4e47733d98266e46a1a73ae0a72954eb')
+    version('develop', git='https://github.com/jbeder/yaml-cpp', branch='master')
 
+    variant('shared', default=True,
+            description='Enable build of shared libraries')
     variant('fpic',    default=False,
             description='Build with position independent code')
 
@@ -46,5 +49,9 @@ class YamlCpp(CMakePackage):
             options.extend([
                 '-DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true'
             ])
+        if '+shared' in spec:
+            options.append('-DBUILD_SHARED_LIBS=ON')
+        else:
+            options.append('-DBUILD_SHARED_LIBS=OFF')
 
         return options

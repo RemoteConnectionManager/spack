@@ -30,13 +30,13 @@ class Mesa(AutotoolsPackage):
     specification - a system for rendering interactive 3D graphics."""
 
     homepage = "http://www.mesa3d.org"
-    url      = "ftp://ftp.freedesktop.org/pub/mesa/12.0.3/mesa-12.0.3.tar.gz"
+    url      = "http://ftp.iij.ad.jp/pub/X11/x.org/pub/mesa/12.0.3/mesa-12.0.3.tar.gz"
 
     version('12.0.3', '60c5f9897ddc38b46f8144c7366e84ad')
 
     # General dependencies
     depends_on('python@2.6.4:')
-    depends_on('py-mako@0.3.4:')
+    depends_on('py-mako@0.3.4:', type=('build', 'run'))
     depends_on('flex@2.5.35:', type='build')
     depends_on('bison@2.4.1:', type='build')
 
