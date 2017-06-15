@@ -22,33 +22,22 @@
 # License along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 ##############################################################################
+
+#
 from spack import *
-import os
 
 
-class Xkbcomp(AutotoolsPackage):
-    """The X Keyboard (XKB) Extension essentially replaces the core protocol
-    definition of a keyboard. The extension makes it possible to specify
-    clearly and explicitly most aspects of keyboard behaviour on a per-key
-    basis, and to track more closely the logical and physical state of a
-    keyboard. It also includes a number of keyboard controls designed to
-    make keyboards more accessible to people with physical impairments."""
+class Pam(AutotoolsPackage):
+    """Linux Pluggable Authentication Modules"""
 
-    homepage = "https://www.x.org/wiki/XKB/"
-    url      = "https://www.x.org/archive/individual/app/xkbcomp-1.3.1.tar.gz"
+    homepage = "http://linux-pam.org/"
+    url      = "http://linux-pam.org/library/Linux-PAM-1.3.0.tar.bz2"
 
-    version('1.3.1', '9e8ca110ed40d4703f8f73d99bc81576')
-
-    depends_on('libx11')
-    depends_on('libxkbfile')
-
-    depends_on('xproto@7.0.17:', type='build')
-    depends_on('bison', type='build')
-    depends_on('pkg-config@0.9.0:', type='build')
-    depends_on('util-macros', type='build')
-    depends_on('xkeyboard-config', type=('build', 'run'))
+    version('1.3.0', 'da4b2289b7cfb19583d54e9eaaef1c3a')
+    version('1.2.1', '9dc53067556d2dd567808fd509519dd6')
+    version('1.2.0', 'ee4a480d77b341c99e8b1375f8f180c0')
 
     def configure_args(self):
-        datadir = os.path.join(self.spec['xkeyboard-config'].prefix, 'share')
+        prefix = self.spec.prefix
         return [
-            '--datadir={0}'.format(datadir)]
+            '--includedir={0}/include/security'.format(prefix)]
