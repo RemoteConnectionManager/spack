@@ -31,6 +31,7 @@ class Cfitsio(AutotoolsPackage):
     """
 
     homepage = 'http://heasarc.gsfc.nasa.gov/fitsio/'
+    url      = 'http://heasarc.gsfc.nasa.gov/FTP/software/fitsio/c/cfitsio3410.tar.gz'
 
     version('3.410', '8a4a66fcdd816aae41768baa0b025552')
     version('3.370', 'abebd2d02ba5b0503c633581e3bfa116')
@@ -41,7 +42,7 @@ class Cfitsio(AutotoolsPackage):
     depends_on('bzip2', when='+bzip2')
 
     def url_for_version(self, version):
-        url = 'ftp://heasarc.gsfc.nasa.gov/software/fitsio/c/cfitsio{0}.tar.gz'
+        url = 'http://heasarc.gsfc.nasa.gov/FTP/software/fitsio/c/cfitsio{0}.tar.gz'
         return url.format(version.joined)
 
     def configure_args(self):
