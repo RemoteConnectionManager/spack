@@ -43,6 +43,7 @@ class Vtk(CMakePackage):
     # VTK7 defaults to OpenGL2 rendering backend
     variant('opengl2', default=True, description='Build with OpenGL2 instead of OpenGL as rendering backend')
     variant('python', default=False, description='Build the python modules')
+    variant('examples', default=False, description='Build examples')
 
     patch('gcc.patch', when='@6.1.0')
 
@@ -96,6 +97,21 @@ class Vtk(CMakePackage):
                 '-DVTK_Group_Qt:BOOL=OFF',
                 '-DModule_vtkGUISupportQt:BOOL=ON',
                 '-DModule_vtkGUISupportQtOpenGL:BOOL=ON',
+                '-DBUILD_SHARED_LIBS=ON',
+                '-DVTK_RENDERING_BACKEND:STRING={0}'.format(opengl_ver),
+
+                # Enable/Disable wrappers for Python.
+                '-DVTK_WRAP_PYTHON={0}'.format(feature_to_bool('python')),
+
+                # Disable wrappers for other languages.
+                '-DVTK_WRAP_JAVA=OFF',
+                '-DVTK_WRAP_TCL=OFF',
+
+                # Enable Qt support here.
+                '-DVTK_QT_VERSION:STRING={0}'.format(qt_ver),
+                '-DQT_QMAKE_EXECUTABLE:PATH={0}/qmake'.format(qt_bin),
+                '-DVTK_Group_Qt:BOOL=ON',
+                '-DBUILD_EXAMPLES={0}'.format(feature_to_bool('examples'))
             ])
 
         if spec.satisfies('@:6.1.0'):
