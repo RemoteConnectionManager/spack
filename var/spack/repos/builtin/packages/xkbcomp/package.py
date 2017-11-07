@@ -23,7 +23,6 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 ##############################################################################
 from spack import *
-import os
 
 
 class Xkbcomp(AutotoolsPackage):
@@ -49,6 +48,6 @@ class Xkbcomp(AutotoolsPackage):
     depends_on('xkeyboard-config', type=('build', 'run'))
 
     def configure_args(self):
-        datadir = os.path.join(self.spec['xkeyboard-config'].prefix, 'share')
+        datadir = self.spec['xkeyboard-config'].prefix.share
         return [
             '--datadir={0}'.format(datadir)]
