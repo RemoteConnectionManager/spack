@@ -279,21 +279,20 @@ class Openmpi(AutotoolsPackage):
             line += '={0}'.format(path)
         return line
 
-    def _scheduler_dir(self,scheduler):
+    def _scheduler_dir(self, scheduler):
         """Look for available schedulers installation directory to pass to
         with_or_without config fuctions.
         """
-        commands={'tm':'qsub', 'slurm':'sbatch'}
-        search_cmd=commands.get(scheduler,None)
-        if search_cmd :
-            cmd=which(search_cmd)
-            if cmd :
+        commands = {'tm': 'qsub', 'slurm': 'sbatch'}
+        search_cmd = commands.get(scheduler, None)
+        if search_cmd:
+            cmd = which(search_cmd)
+            if cmd:
                 if scheduler == 'tm':
-                    if '-ldl' not in self.LDFLAGS : 
+                    if '-ldl' not in self.LDFLAGS:
                         self.LDFLAGS.append('-ldl')
                 return os.path.dirname(os.path.dirname(cmd.path))
         return None
-
 
     @run_before('autoreconf')
     def die_without_fortran(self):
@@ -318,7 +317,8 @@ class Openmpi(AutotoolsPackage):
 
         # Fabrics and schedulers
         config_args.extend(self.with_or_without('fabrics'))
-        schedulers_flags=self.with_or_without('schedulers',self._scheduler_dir)
+        schedulers_flags = self.with_or_without(
+            'schedulers', self._scheduler_dir)
         config_args.extend(schedulers_flags)
 
         # Hwloc support
