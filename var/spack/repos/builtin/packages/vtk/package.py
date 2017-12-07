@@ -50,6 +50,7 @@ class Vtk(CMakePackage):
     depends_on('hdf5')
     depends_on('netcdf')
     depends_on('netcdf-cxx')
+    depends_on('libxt')
 
     extends('python', when='+python')
 
@@ -101,5 +102,7 @@ class Vtk(CMakePackage):
         if spec.satisfies('@:6.1.0'):
             cmake_args.append('-DCMAKE_C_FLAGS=-DGLX_GLXEXT_LEGACY')
             cmake_args.append('-DCMAKE_CXX_FLAGS=-DGLX_GLXEXT_LEGACY')
+
+        
 
         return cmake_args
