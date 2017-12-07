@@ -31,17 +31,20 @@ class Visit(CMakePackage):
     homepage = "https://wci.llnl.gov/simulation/computer-codes/visit/"
     url = "http://portal.nersc.gov/project/visit/releases/2.10.1/visit2.10.1.tar.gz"
 
+    version('2.13.0', '84fb4ef1e6024df7b3830f2549a7b040')
     version('2.12.2', '355779b1dbf440cdd548526eecd77b60')
     version('2.10.3', 'a1082a6f6dab3e2dcb58993603456c2b')
     version('2.10.2', '253de0837a9d69fb689befc98ea4d068')
     version('2.10.1', '3cbca162fdb0249f17c4456605c4211e')
 
     depends_on('cmake@3.0:', type='build')
-    depends_on('vtk@6.1.0~opengl2')
+    depends_on('vtk')
+    #depends_on('vtk@6.1.0~opengl2')
     depends_on('qt@4.8.6')
     depends_on('python')
     depends_on('silo+shared')
-    depends_on('hdf5~mpi')
+    depends_on('hdf5')
+    depends_on('qwt')
 
     root_cmakelists_dir = 'src'
 
@@ -58,4 +61,6 @@ class Visit(CMakePackage):
             '-DVISIT_SILO_DIR:PATH={0}'.format(spec['silo'].prefix),
             '-DVISIT_HDF5_DIR:PATH={0}'.format(spec['hdf5'].prefix),
             '-DVISIT_VTK_DIR:PATH={0}'.format(spec['vtk'].prefix),
+            '-DVISIT_QWT_DIR:PATH={0}'.format(spec['qwt'].prefix),
+            '-DVISIT_VTK_VERSION=7.1.0',
         ]
