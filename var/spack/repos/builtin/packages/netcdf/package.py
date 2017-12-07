@@ -55,6 +55,8 @@ class Netcdf(AutotoolsPackage):
 
     variant('mpi', default=True,
             description='Enable parallel I/O for netcdf-4')
+    variant('cxx-4', default=False,
+            description='enable cxx interface')
     variant('parallel-netcdf', default=False,
             description='Enable parallel I/O for classic files')
     variant('hdf4', default=False, description='Enable HDF4 support')
@@ -172,6 +174,7 @@ class Netcdf(AutotoolsPackage):
             config_args.append('--enable-dynamic-loading')
 
         config_args += self.enable_or_disable('shared')
+        config_args += self.enable_or_disable('cxx-4')
 
         if '~shared' in self.spec:
             # We don't have shared libraries but we still want it to be
@@ -180,7 +183,7 @@ class Netcdf(AutotoolsPackage):
 
         config_args += self.enable_or_disable('dap')
         # config_args += self.enable_or_disable('cdmremote')
-
+        
         # if '+dap' in self.spec or '+cdmremote' in self.spec:
         if '+dap' in self.spec:
             # Make sure Netcdf links against Spack's curl, otherwise it may
