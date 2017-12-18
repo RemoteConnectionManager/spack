@@ -55,6 +55,8 @@ class PyPyinstaller(PythonPackage):
     depends_on('py-macholib',   type=('build', 'run'))
     depends_on('py-pefile',   type=('build', 'run'))
 
+    patch('hook-_tkinter.patch', when='@3.3')
+
     def build_args(self, spec, prefix):
         # FIXME: Add arguments other than --prefix
         # FIXME: If not needed delete this function
