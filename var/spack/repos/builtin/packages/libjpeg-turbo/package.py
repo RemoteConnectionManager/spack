@@ -23,6 +23,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 ##############################################################################
 from spack import *
+import os
+import sys
 
 
 class LibjpegTurbo(AutotoolsPackage):
@@ -65,5 +67,5 @@ class LibjpegTurbo(AutotoolsPackage):
                 'JNI_CFLAGS',
                 '-I' + self.spec['jdk'].prefix.include +
                 ' ' + '-I' +
-                self.spec['jdk'].prefix.include.linux,
+                os.path.join(self.spec['jdk'].prefix.include, sys.platform),
                 separator=' ')
