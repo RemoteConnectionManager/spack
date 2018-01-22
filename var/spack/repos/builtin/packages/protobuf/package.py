@@ -6,7 +6,7 @@
 # Created by Todd Gamblin, tgamblin@llnl.gov, All rights reserved.
 # LLNL-CODE-647188
 #
-# For details, see https://github.com/llnl/spack
+# For details, see https://github.com/spack/spack
 # Please also see the NOTICE and LICENSE files for our notice and the LGPL.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -48,10 +48,12 @@ class Protobuf(CMakePackage):
     # first fixed in 3.4.0: https://github.com/google/protobuf/pull/3406
     patch('pkgconfig.patch', when='@:3.3.2')
 
+    patch('intel_inline.patch', when='@3.2.0: %intel')
+
     def fetch_remote_versions(self):
         """Ignore additional source artifacts uploaded with releases,
            only keep known versions
-           fix for https://github.com/LLNL/spack/issues/5356"""
+           fix for https://github.com/spack/spack/issues/5356"""
         return dict(map(
             lambda u: (u, self.url_for_version(u)),
             spack.util.web.find_versions_of_archive(

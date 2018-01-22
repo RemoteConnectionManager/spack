@@ -6,7 +6,7 @@
 # Created by Todd Gamblin, tgamblin@llnl.gov, All rights reserved.
 # LLNL-CODE-647188
 #
-# For details, see https://github.com/llnl/spack
+# For details, see https://github.com/spack/spack
 # Please also see the NOTICE and LICENSE files for our notice and the LGPL.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -884,6 +884,9 @@ class SpecBuildInterface(ObjectWrapper):
 @key_ordering
 class Spec(object):
 
+    #: Cache for spec's prefix, computed lazily in the corresponding property
+    _prefix = None
+
     @staticmethod
     def from_literal(spec_dict, normal=True):
         """Builds a Spec from a dictionary containing the spec literal.
@@ -1122,7 +1125,7 @@ class Spec(object):
             self._set_architecture(target=value)
         elif name in valid_flags:
             assert(self.compiler_flags is not None)
-            self.compiler_flags[name] = value.split()
+            self.compiler_flags[name] = spack.compiler.tokenize_flags(value)
         else:
             # FIXME:
             # All other flags represent variants. 'foo=true' and 'foo=false'
@@ -1374,7 +1377,13 @@ class Spec(object):
 
     @property
     def prefix(self):
-        return Prefix(spack.store.layout.path_for_spec(self))
+        if self._prefix is None:
+            self.prefix = spack.store.layout.path_for_spec(self)
+        return self._prefix
+
+    @prefix.setter
+    def prefix(self, value):
+        self._prefix = Prefix(value)
 
     def dag_hash(self, length=None):
         """Return a hash of the entire spec DAG, including connectivity."""
@@ -1864,9 +1873,9 @@ class Spec(object):
         matches = []
         for x in self.traverse():
             for conflict_spec, when_list in x.package.conflicts.items():
-                if x.satisfies(conflict_spec):
+                if x.satisfies(conflict_spec, strict=True):
                     for when_spec, msg in when_list:
-                        if x.satisfies(when_spec):
+                        if x.satisfies(when_spec, strict=True):
                             matches.append((x, conflict_spec, when_spec, msg))
         if matches:
             raise ConflictsInSpecError(self, matches)
@@ -1892,7 +1901,7 @@ class Spec(object):
         """This is a non-destructive version of concretize().  First clones,
            then returns a concrete version of this package without modifying
            this package. """
-        clone = self.copy()
+        clone = self.copy(caches=False)
         clone.concretize()
         return clone
 
@@ -2225,7 +2234,10 @@ class Spec(object):
             if not spec.virtual:
                 pkg_cls = spec.package_class
                 pkg_variants = pkg_cls.variants
-                not_existing = set(spec.variants) - set(pkg_variants)
+                # reserved names are variants that may be set on any package
+                # but are not necessarily recorded by the package's class
+                not_existing = set(spec.variants) - (
+                    set(pkg_variants) | set(spack.directives.reserved_names))
                 if not_existing:
                     raise UnknownVariantError(spec.name, not_existing)
 
