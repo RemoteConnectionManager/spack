@@ -279,6 +279,21 @@ class Openmpi(AutotoolsPackage):
             line += '={0}'.format(path)
         return line
 
+    def _scheduler_dir(self, scheduler):
+        """Look for available schedulers installation directory to pass to
+        with_or_without config fuctions.
+        """
+        commands = {'tm': 'qsub', 'slurm': 'sbatch'}
+        search_cmd = commands.get(scheduler, None)
+        if search_cmd:
+            cmd = which(search_cmd)
+            if cmd:
+                if scheduler == 'tm':
+                    if '-ldl' not in self.LDFLAGS:
+                        self.LDFLAGS.append('-ldl')
+                return os.path.dirname(os.path.dirname(cmd.path))
+        return None
+
     @run_before('autoreconf')
     def die_without_fortran(self):
         # Until we can pass variants such as +fortran through virtual
@@ -291,6 +306,7 @@ class Openmpi(AutotoolsPackage):
 
     def configure_args(self):
         spec = self.spec
+        self.LDFLAGS = []
         config_args = [
             '--enable-shared',
             '--enable-static'
@@ -301,7 +317,9 @@ class Openmpi(AutotoolsPackage):
 
         # Fabrics and schedulers
         config_args.extend(self.with_or_without('fabrics'))
-        config_args.extend(self.with_or_without('schedulers'))
+        schedulers_flags = self.with_or_without(
+            'schedulers', self._scheduler_dir)
+        config_args.extend(schedulers_flags)
 
         # Hwloc support
         if spec.satisfies('@1.5.2:'):
@@ -373,6 +391,7 @@ class Openmpi(AutotoolsPackage):
         else:
             config_args.append('--without-ucx')
 
+        config_args.append('LDFLAGS=' + ' '.join(self.LDFLAGS))
         return config_args
 
     @run_after('install')
