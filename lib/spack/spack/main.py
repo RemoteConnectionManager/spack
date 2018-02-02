@@ -6,7 +6,7 @@
 # Created by Todd Gamblin, tgamblin@llnl.gov, All rights reserved.
 # LLNL-CODE-647188
 #
-# For details, see https://github.com/llnl/spack
+# For details, see https://github.com/spack/spack
 # Please also see the NOTICE and LICENSE files for our notice and the LGPL.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -38,10 +38,8 @@ from six import StringIO
 
 import llnl.util.tty as tty
 from llnl.util.tty.log import log_output
-from llnl.util.tty.color import *
 
 import spack
-import spack.cmd
 from spack.error import SpackError
 
 
@@ -94,8 +92,8 @@ def set_working_dir():
     try:
         spack.spack_working_dir = os.getcwd()
     except OSError:
-        os.chdir(spack_prefix)
-        spack.spack_working_dir = spack_prefix
+        os.chdir(spack.spack_prefix)
+        spack.spack_working_dir = spack.spack_prefix
 
 
 def add_all_commands(parser):
@@ -160,11 +158,11 @@ class SpackArgumentParser(argparse.ArgumentParser):
 
         def add_subcommand_group(title, commands):
             """Add informational help group for a specific subcommand set."""
-            cmd_set = set(commands)
+            cmd_set = set(c for c in commands)
 
             # make a dict of commands of interest
-            cmds = dict((action.metavar, action) for action in self.actions
-                        if action.metavar in cmd_set)
+            cmds = dict((a.metavar, a) for a in self.actions
+                        if a.metavar in cmd_set)
 
             # add commands to a group in order, and add the group
             group = argparse._ArgumentGroup(self, title=title)
@@ -227,7 +225,7 @@ class SpackArgumentParser(argparse.ArgumentParser):
         # epilog
         formatter.add_text("""\
 {help}:
-  spack help -a          list all available commands
+  spack help --all       list all available commands
   spack help <command>   help on a specific command
   spack help --spec      help on the spec syntax
   spack docs             open http://spack.rtfd.io/ in a browser"""
@@ -236,11 +234,8 @@ class SpackArgumentParser(argparse.ArgumentParser):
         # determine help from format above
         return formatter.format_help()
 
-    def add_command(self, name):
+    def add_command(self, cmd_name):
         """Add one subcommand to this parser."""
-        # convert CLI command name to python module name
-        name = spack.cmd.get_python_name(name)
-
         # lazily initialize any subparsers
         if not hasattr(self, 'subparsers'):
             # remove the dummy "command" argument.
@@ -251,8 +246,7 @@ class SpackArgumentParser(argparse.ArgumentParser):
 
         # each command module implements a parser() function, to which we
         # pass its subparser for setup.
-        module = spack.cmd.get_module(name)
-        cmd_name = name.replace('_', '-')
+        module = spack.cmd.get_module(cmd_name)
         subparser = self.subparsers.add_parser(
             cmd_name, help=module.description, description=module.description)
         module.setup_parser(subparser)
@@ -293,6 +287,7 @@ def make_argument_parser():
     parser.add_argument('-m', '--mock', action='store_true',
                         help="use mock packages instead of real ones")
     parser.add_argument('-p', '--profile', action='store_true',
+                        dest='spack_profile',
                         help="profile execution using cProfile")
     parser.add_argument('-P', '--sorted-profile', default=None, metavar="STAT",
                         help="profile and sort by one or more of:\n[%s]" %
@@ -371,7 +366,11 @@ class SpackCommand(object):
     their output.
     """
     def __init__(self, command):
-        """Create a new SpackCommand that invokes ``command`` when called."""
+        """Create a new SpackCommand that invokes ``command`` when called.
+
+        Args:
+            command (str): name of the command to invoke
+        """
         self.parser = make_argument_parser()
         self.parser.add_command(command)
         self.command_name = command
@@ -389,7 +388,7 @@ class SpackCommand(object):
         Returns:
             (str): combined output and error as a string
 
-        On return, if ``fail_on_error`` is False, return value of comman
+        On return, if ``fail_on_error`` is False, return value of command
         is set in ``returncode`` property, and the error is set in the
         ``error`` property.  Otherwise, raise an error.
         """
@@ -411,8 +410,8 @@ class SpackCommand(object):
         except SystemExit as e:
             self.returncode = e.code
 
-        except:
-            self.error = sys.exc_info()[1]
+        except BaseException as e:
+            self.error = e
             if fail_on_error:
                 raise
 
@@ -515,9 +514,9 @@ def main(argv=None):
 
     # Try to load the particular command the caller asked for.  If there
     # is no module for it, just die.
-    command_name = spack.cmd.get_python_name(args.command[0])
+    cmd_name = args.command[0]
     try:
-        parser.add_command(command_name)
+        parser.add_command(cmd_name)
     except ImportError:
         if spack.debug:
             raise
@@ -535,9 +534,9 @@ def main(argv=None):
         return 0
 
     # now we can actually execute the command.
-    command = spack.cmd.get_command(command_name)
+    command = spack.cmd.get_command(cmd_name)
     try:
-        if args.profile or args.sorted_profile:
+        if args.spack_profile or args.sorted_profile:
             _profile_wrapper(command, parser, args, unknown)
         elif args.pdb:
             import pdb

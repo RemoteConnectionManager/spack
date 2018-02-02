@@ -6,7 +6,7 @@
 # Created by Todd Gamblin, tgamblin@llnl.gov, All rights reserved.
 # LLNL-CODE-647188
 #
-# For details, see https://github.com/llnl/spack
+# For details, see https://github.com/spack/spack
 # Please also see the NOTICE and LICENSE files for our notice and the LGPL.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -46,17 +46,17 @@ import re
 import shutil
 import copy
 from functools import wraps
-from six import string_types
-from six import with_metaclass
+from six import string_types, with_metaclass
 
 import llnl.util.tty as tty
-from llnl.util.filesystem import *
+from llnl.util.filesystem import working_dir, mkdirp, join_path
+
 import spack
 import spack.error
 import spack.util.crypto as crypto
 import spack.util.pattern as pattern
-from spack.util.executable import *
-from spack.util.string import *
+from spack.util.executable import which
+from spack.util.string import comma_or
 from spack.version import Version, ver
 from spack.util.compression import decompressor_for, extension
 
@@ -276,7 +276,8 @@ class URLFetchStrategy(FetchStrategy):
         # Check if we somehow got an HTML file rather than the archive we
         # asked for.  We only look at the last content type, to handle
         # redirects properly.
-        content_types = re.findall(r'Content-Type:[^\r\n]+', headers)
+        content_types = re.findall(r'Content-Type:[^\r\n]+', headers,
+                                   flags=re.IGNORECASE)
         if content_types and 'text/html' in content_types[-1]:
             tty.warn("The contents of ",
                      (self.archive_file if self.archive_file is not None
@@ -449,7 +450,7 @@ class VCSFetchStrategy(FetchStrategy):
 
         # Ensure that there's only one of the rev_types
         if sum(k in kwargs for k in rev_types) > 1:
-            raise FetchStrategyError(
+            raise ValueError(
                 "Supply only one of %s to fetch with %s" % (
                     comma_or(rev_types), name
                 ))
@@ -914,7 +915,7 @@ def from_kwargs(**kwargs):
     # Raise an error in case we can't instantiate any known strategy
     message = "Cannot instantiate any FetchStrategy"
     long_message = message + " from the given arguments : {arguments}".format(
-        srguments=kwargs)
+        arguments=kwargs)
     raise FetchError(message, long_message)
 
 
@@ -960,7 +961,7 @@ def from_list_url(pkg):
        the specified package's version."""
     if pkg.list_url:
         try:
-            versions = pkg.fetch_remote_package_versions()
+            versions = pkg.fetch_remote_versions()
             try:
                 url_from_list = versions[pkg.version]
                 digest = None
@@ -969,8 +970,8 @@ def from_list_url(pkg):
                 return URLFetchStrategy(url=url_from_list, digest=digest)
             except KeyError:
                 tty.msg("Can not find version %s in url_list" %
-                        self.version)
-        except:
+                        pkg.version)
+        except BaseException:
             tty.msg("Could not determine url from list_url.")
 
 
