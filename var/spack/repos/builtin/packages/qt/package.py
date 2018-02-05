@@ -138,6 +138,8 @@ class Qt(Package):
     depends_on("flex", when='+webkit', type='build')
     depends_on("bison", when='+webkit', type='build')
     depends_on("gperf", when='+webkit')
+    depends_on("libxrender")
+    depends_on("harfbuzz")
 
     # Multimedia
     # depends_on("gstreamer", when='+multimedia')
@@ -367,7 +369,7 @@ class Qt(Package):
 
         if not sys.platform == 'darwin':
             config_args.extend([
-                '-qt-xcb',
+        #        '-qt-xcb',
             ])
 
         if '~webkit' in self.spec:

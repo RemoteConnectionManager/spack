@@ -36,7 +36,8 @@ class Mesa(AutotoolsPackage):
     _oldurlfmt = "https://mesa.freedesktop.org/archive/older-versions/{0}.x/{1}/mesa-{1}.tar.xz"
     list_depth = 2
 
-    version('17.2.3', 'a7dca71afbc7294cb7d505067fd44ef6')
+    version('17.3.3', '139b5f608b371c0d4395596162f88791')
+    version('17.2.3', 'a7dca71afbc7294cb7d505067fd44ef6', preferred=True)
     version('17.2.2', '1a157b5baefb5adf9f4fbb8a6632d74c')
     version('17.1.5', '6cf936fbcaadd98924298a7009e8265d')
     version('17.1.4', 'be2ef7c9edec23b07f74f6512a6a6fa5')
@@ -68,19 +69,26 @@ class Mesa(AutotoolsPackage):
     depends_on('xproto')
     depends_on('glproto@1.4.14:')
     depends_on('presentproto@1.0:')
-    depends_on('libxcb@1.9.3:')
+    #depends_on('libxcb@1.9.3:')
+    depends_on('libxcb')
     depends_on('libx11')
     depends_on('libxext')
     depends_on('libxshmfence@1.1:')
     depends_on('libxdamage')
+    depends_on('damageproto')
     depends_on('libxfixes')
+    depends_on('fixesproto')
     depends_on('libxv')
     depends_on('libxvmc')
 
     # For DRI and hardware acceleration
     depends_on('dri2proto@2.6:', type='build', when='+hwrender')
     depends_on('dri3proto@1.0:', type='build', when='+hwrender')
-    depends_on('libdrm', when='+hwrender')
+    #depends_on('libdrm', when='+hwrender')
+    depends_on('libdrm')
+    depends_on('dri2proto')
+    depends_on('wayland', when='+swrender')
+    depends_on('wayland-protocols', when='+swrender')
 
     depends_on('llvm@:3.8.1+link_dylib', when='@12:12.99+llvm')
     depends_on('llvm@:3.9.1+link_dylib', when='@13:13.99+llvm')
@@ -140,15 +148,15 @@ class Mesa(AutotoolsPackage):
 
         else:
             args.extend([
-                '--disable-xa',
-                '--disable-dri',
+                '--enable-xa',
+                '--enable-dri',
                 '--disable-dri3',
-                '--disable-egl',
+                '--enable-egl',
                 '--disable-gbm',
                 '--disable-xvmc',
             ])
             if spec.version >= Version('17'):
-                args.append('--with-platforms=x11')
+                args.append('--with-platforms=x11,wayland')
 
         if '+llvm' in spec:
             if self.spec.version < Version('17'):
