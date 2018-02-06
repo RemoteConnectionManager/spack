@@ -105,6 +105,7 @@ class Qt(Package):
     depends_on("icu4c")
     depends_on("fontconfig", when=(sys.platform != 'darwin'))  # (Unix only)
     depends_on("freetype")
+    depends_on('xkeyboard-config', type=('build', 'run'))
 
     # Core options:
     # -doubleconversion  [system/qt/no]
@@ -138,6 +139,8 @@ class Qt(Package):
     depends_on("flex", when='+webkit', type='build')
     depends_on("bison", when='+webkit', type='build')
     depends_on("gperf", when='+webkit')
+    depends_on("libxrender")
+    depends_on("harfbuzz")
 
     # Multimedia
     # depends_on("gstreamer", when='+multimedia')
@@ -198,6 +201,11 @@ class Qt(Package):
     def setup_environment(self, spack_env, run_env):
         spack_env.set('MAKEFLAGS', '-j{0}'.format(make_jobs))
         run_env.set('QTDIR', self.prefix)
+        if '@5:' in self.spec and sys.platform != 'darwin':
+            run_env.set('QT_XKB_CONFIG_ROOT',
+                        join_path(self.spec['xkeyboard-config'].prefix.share,
+                                  'X11',
+                                  'xkb'))
 
     def setup_dependent_environment(self, spack_env, run_env, dependent_spec):
         spack_env.set('QTDIR', self.prefix)
