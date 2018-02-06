@@ -36,7 +36,8 @@ class Mesa(AutotoolsPackage):
     _oldurlfmt = "https://mesa.freedesktop.org/archive/older-versions/{0}.x/{1}/mesa-{1}.tar.xz"
     list_depth = 2
 
-    version('17.2.3', 'a7dca71afbc7294cb7d505067fd44ef6')
+    version('17.3.3', '139b5f608b371c0d4395596162f88791')
+    version('17.2.3', 'a7dca71afbc7294cb7d505067fd44ef6', preferred=True)
     version('17.2.2', '1a157b5baefb5adf9f4fbb8a6632d74c')
     version('17.1.5', '6cf936fbcaadd98924298a7009e8265d')
     version('17.1.4', 'be2ef7c9edec23b07f74f6512a6a6fa5')
@@ -73,7 +74,9 @@ class Mesa(AutotoolsPackage):
     depends_on('libxext')
     depends_on('libxshmfence@1.1:')
     depends_on('libxdamage')
+    depends_on('damageproto')
     depends_on('libxfixes')
+    depends_on('fixesproto')
     depends_on('libxv')
     depends_on('libxvmc')
 
