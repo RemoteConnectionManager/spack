@@ -28,5 +28,7 @@ services:
     build: ./spack_ubuntu
     volumes:
       - '../../..:/spack'
+      - '../../../../../install:/install'
+      - '../../../../../../../cache:/cache'
     environment:
       PROMPT: "${PROMPT:-0}"
