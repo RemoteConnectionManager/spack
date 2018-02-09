@@ -223,7 +223,7 @@ fi;
 #
 if [ "${need_module}" = "yes" ]; then
     #check if environment-modules is installed
-    module_prefix="$(spack location -i "environment-modules" 2>&1 || echo "not_installed")"
+    module_prefix="$(spack location -i "environment-modules arch=$(spack arch)" 2>&1 || echo "not_installed")"
     module_prefix=$(echo "${module_prefix}" | tail -n 1)
     if [ "${module_prefix}" != "not_installed" ]; then
         #activate it!
