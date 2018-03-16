@@ -19,6 +19,11 @@ class Virtualgl(CMakePackage):
     version('2.5.2', '1a9f404f4a35afa9f56381cb33ed210c')
 
     depends_on("libjpeg-turbo")
+    depends_on("libx11")
+    depends_on("libxext")
+    depends_on("libxau")
+    depends_on("libxcb")
+    depends_on("xcb-util-keysyms")
     # virtualgl require OpenGL but also wants to link libglu
     # on systems without development packages, provide with spack and depends
     # on mesa-glu, but we do not want Mesa OpenGL sw emulation, so added
