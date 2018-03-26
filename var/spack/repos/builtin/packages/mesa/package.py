@@ -36,6 +36,7 @@ class Mesa(AutotoolsPackage):
     _oldurlfmt = "https://mesa.freedesktop.org/archive/older-versions/{0}.x/{1}/mesa-{1}.tar.xz"
     list_depth = 2
 
+    version('17.3.7', '769137f2538562c300c4b76bcb097377')
     version('17.2.3', 'a7dca71afbc7294cb7d505067fd44ef6')
     version('17.2.2', '1a157b5baefb5adf9f4fbb8a6632d74c')
     version('17.1.5', '6cf936fbcaadd98924298a7009e8265d')
@@ -88,6 +89,7 @@ class Mesa(AutotoolsPackage):
 
     depends_on('llvm@:3.8.1+link_dylib', when='@12:12.99+llvm')
     depends_on('llvm@:3.9.1+link_dylib', when='@13:13.99+llvm')
+    depends_on('llvm@:5.99+link_dylib', when='@:17.2.3+llvm')
     depends_on('llvm+link_dylib', when='+llvm')
     depends_on('libelf', when='+llvm')
     depends_on('damageproto', when='+hwrender')
