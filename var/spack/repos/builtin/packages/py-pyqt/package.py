@@ -31,7 +31,9 @@ class PyPyqt(Package):
        including Windows, MacOS/X and Linux."""
     homepage = "http://www.riverbankcomputing.com/software/pyqt/intro"
     url      = "http://sourceforge.net/projects/pyqt/files/PyQt4/PyQt-4.11.3/PyQt-x11-gpl-4.11.3.tar.gz"
+    url      = "https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.10/PyQt5_gpl-5.10.tar.gz"
 
+    version('5.10.1', 'be36c2abaffc9daa8b993f1ca982968f')
     version('4.11.3', '997c3e443165a89a559e0d96b061bf70')
 
     extends('python')
@@ -39,11 +41,12 @@ class PyPyqt(Package):
 
     # TODO: allow qt5 when conditional deps are supported.
     # TODO: Fix version matching so that @4 works like @:4
-    depends_on('qt@:4+phonon+dbus')
+    #depends_on('qt@:4+phonon+dbus')
+    depends_on('qt')
 
     def install(self, spec, prefix):
         python('configure.py',
-               '--confirm-license',
+               '--confirm-license', '--verbose'
                '--destdir=%s' % site_packages_dir)
         make()
         make('install')
