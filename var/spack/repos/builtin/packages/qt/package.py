@@ -126,12 +126,24 @@ class Qt(Package):
     depends_on("python", when='@5.7.0:', type='build')
 
     # OpenGL hardware acceleration
-    depends_on("gl@3.2:", when='@4:+opengl')
-    depends_on("libxcb", when=sys.platform != 'darwin')
-    depends_on("libx11", when=sys.platform != 'darwin')
 
     if sys.platform != 'darwin':
         depends_on("libxext", when='@3:4.99')
+        depends_on("libx11")
+        depends_on("libxext")
+        depends_on("libxau")
+        depends_on("libxrender")
+        depends_on("xinput")
+#        depends_on("libxkbcommon")
+        depends_on("libxcb")
+        depends_on("xcb-util")
+        depends_on("xcb-util-keysyms")
+        depends_on("xcb-util-image")
+        depends_on("xcb-util-renderutil")
+        depends_on("mesa-glu~mesa", when='@4:+opengl')
+        depends_on("gl@3.2:", when='@4:+opengl')
+    else:
+        depends_on("gl@3.2:", when='@4:+opengl')
 
     # Webkit
     depends_on("flex", when='+webkit', type='build')
@@ -293,7 +305,10 @@ class Qt(Package):
                 '-no-alsa',
             ])
 
-        # FIXME: else: -system-xcb ?
+        #else:
+        #    config_args.extend([
+        #        '-system-xcb', 
+        #    ])
 
         if '@4' in self.spec and sys.platform == 'darwin':
             config_args.append('-cocoa')
