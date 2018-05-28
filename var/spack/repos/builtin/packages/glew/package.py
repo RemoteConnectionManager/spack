@@ -35,6 +35,7 @@ class Glew(Package):
 
     depends_on("cmake", type='build')
     depends_on("gl")
+    depends_on("libx11")
 
     def install(self, spec, prefix):
         options = []

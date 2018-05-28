@@ -67,12 +67,13 @@ class Vtk(CMakePackage):
 
     # VTK will need Qt5OpenGL, and qt needs '-opengl' for that
     depends_on('qt+opengl', when='+qt')
+    depends_on('libxt', when='+qt')
 
     depends_on('expat')
     depends_on('freetype')
     depends_on('glew')
     depends_on('hdf5')
-    depends_on('libjpeg')
+    depends_on('jpeg')
     depends_on('jsoncpp')
     depends_on('libharu')
     depends_on('libxml2')
