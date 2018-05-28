@@ -47,6 +47,7 @@ class Vtk(CMakePackage):
     variant('osmesa', default=False, description='Enable OSMesa support')
     variant('python', default=False, description='Enable Python support')
     variant('qt', default=False, description='Build with support for Qt')
+    variant('examples', default=False, description='Build examples')
 
     patch('gcc.patch', when='@6.1.0')
 
@@ -180,6 +181,7 @@ class Vtk(CMakePackage):
             cmake_args.extend([
                 '-DOPENGL_INCLUDE_DIR:PATH={0}'.format(openglIncludeDir),
                 '-DOPENGL_gl_LIBRARY:FILEPATH={0}'.format(openglLibrary)
+                '-DBUILD_EXAMPLES={0}'.format(feature_to_bool('examples'))
             ])
 
         if spec.satisfies('@:6.1.0'):
