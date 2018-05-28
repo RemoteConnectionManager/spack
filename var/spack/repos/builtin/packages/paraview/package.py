@@ -34,6 +34,7 @@ class Paraview(CMakePackage):
     url      = "http://www.paraview.org/files/v5.3/ParaView-v5.3.0.tar.gz"
     _urlfmt  = 'http://www.paraview.org/files/v{0}/ParaView-v{1}{2}.tar.gz'
 
+    version('5.5.0', 'a8f2f41edadffdcc89b37fdc9aa7f005')
     version('5.4.1', '4030c70477ec5a85aa72d6fc86a30753')
     version('5.4.0', 'b92847605bac9036414b644f33cb7163')
     version('5.3.0', '68fbbbe733aa607ec13d1db1ab5eba71')
@@ -51,6 +52,8 @@ class Paraview(CMakePackage):
     variant('opengl2', default=True, description='Enable OpenGL2 backend')
     variant('examples', default=False, description="Build examples")
     variant('hdf5', default=False, description="Use external HDF5")
+    variant('netcdf', default=False, description="Use external NETCDF")
+    variant('expat', default=False, description="Use external EXPAT")
 
     depends_on('python@2:2.8', when='+python')
     depends_on('py-numpy', when='+python', type='run')
@@ -74,7 +77,8 @@ class Paraview(CMakePackage):
     depends_on('libpng')
     depends_on('libtiff')
     depends_on('libxml2')
-    # depends_on('netcdf')
+    depends_on('netcdf', when='+netcdf')
+    depends_on('expat', when='+expat')
     # depends_on('netcdf-cxx')
     # depends_on('protobuf') # version mismatches?
     # depends_on('sqlite') # external version not supported
@@ -154,7 +158,8 @@ class Paraview(CMakePackage):
             '-DVTK_USE_SYSTEM_HDF5:BOOL=%s' % variant_bool('+hdf5'),
             '-DVTK_USE_SYSTEM_JPEG:BOOL=ON',
             '-DVTK_USE_SYSTEM_LIBXML2:BOOL=ON',
-            '-DVTK_USE_SYSTEM_NETCDF:BOOL=OFF',
+            '-DVTK_USE_SYSTEM_NETCDF:BOOL=%s' % variant_bool('+netcdf'),
+            '-DVTK_USE_SYSTEM_EXPAT:BOOL=%s' % variant_bool('+expat'),
             '-DVTK_USE_SYSTEM_TIFF:BOOL=ON',
             '-DVTK_USE_SYSTEM_ZLIB:BOOL=ON',
         ]
