@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (c) 2013-2017, Lawrence Livermore National Security, LLC.
+# Copyright (c) 2013-2018, Lawrence Livermore National Security, LLC.
 # Produced at the Lawrence Livermore National Laboratory.
 #
 # This file is part of Spack.
@@ -131,7 +131,7 @@ def rst(args):
 
 @formatter
 def names(args):
-    for cmd in spack.cmd.all_commands:
+    for cmd in spack.cmd.all_commands():
         print(cmd)
 
 

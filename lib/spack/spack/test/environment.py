@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (c) 2013-2017, Lawrence Livermore National Security, LLC.
+# Copyright (c) 2013-2018, Lawrence Livermore National Security, LLC.
 # Produced at the Lawrence Livermore National Laboratory.
 #
 # This file is part of Spack.
@@ -26,7 +26,7 @@ import os
 
 import pytest
 import spack.environment as environment
-from spack import spack_root
+from spack.paths import spack_root
 from spack.environment import EnvironmentModifications
 from spack.environment import RemovePath, PrependPath, AppendPath
 from spack.environment import SetEnv, UnsetEnv

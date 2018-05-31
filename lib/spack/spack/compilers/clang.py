@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (c) 2013-2017, Lawrence Livermore National Security, LLC.
+# Copyright (c) 2013-2018, Lawrence Livermore National Security, LLC.
 # Produced at the Lawrence Livermore National Laboratory.
 #
 # This file is part of Spack.
@@ -29,7 +29,7 @@ from shutil import copytree, ignore_patterns
 
 import llnl.util.tty as tty
 
-import spack
+import spack.paths
 from spack.compiler import Compiler, _version_cache
 from spack.util.executable import Executable
 from spack.version import ver
@@ -48,7 +48,7 @@ class Clang(Compiler):
     # Subclasses use possible names of Fortran 90 compiler
     fc_names = ['flang', 'gfortran']
 
-    # Named wrapper links within spack.build_env_path
+    # Named wrapper links within lib/spack/env
     link_paths = {'cc': 'clang/clang',
                   'cxx': 'clang/clang++'}
 
@@ -228,7 +228,7 @@ class Clang(Compiler):
             raise OSError(msg)
 
         real_root = os.path.dirname(os.path.dirname(real_root))
-        developer_root = os.path.join(spack.stage_path,
+        developer_root = os.path.join(spack.paths.stage_path,
                                       'xcode-select',
                                       self.name,
                                       str(self.version))
@@ -267,8 +267,9 @@ class Clang(Compiler):
                 for fname in os.listdir(dev_dir):
                     if fname in bins:
                         os.unlink(os.path.join(dev_dir, fname))
-                        os.symlink(os.path.join(spack.build_env_path, 'cc'),
-                                   os.path.join(dev_dir, fname))
+                        os.symlink(
+                            os.path.join(spack.paths.build_env_path, 'cc'),
+                            os.path.join(dev_dir, fname))
 
             os.symlink(developer_root, xcode_link)
 

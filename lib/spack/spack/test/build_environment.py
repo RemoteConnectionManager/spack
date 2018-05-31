@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (c) 2013-2017, Lawrence Livermore National Security, LLC.
+# Copyright (c) 2013-2018, Lawrence Livermore National Security, LLC.
 # Produced at the Lawrence Livermore National Laboratory.
 #
 # This file is part of Spack.
@@ -25,17 +25,16 @@
 import os
 import pytest
 
-import spack
-from llnl.util.filesystem import join_path
+from spack.paths import build_env_path
 from spack.build_environment import dso_suffix, _static_to_shared_library
 from spack.util.executable import Executable
 
 
 @pytest.fixture
 def build_environment():
-    cc = Executable(join_path(spack.build_env_path, "cc"))
-    cxx = Executable(join_path(spack.build_env_path, "c++"))
-    fc = Executable(join_path(spack.build_env_path, "fc"))
+    cc = Executable(os.path.join(build_env_path, "cc"))
+    cxx = Executable(os.path.join(build_env_path, "c++"))
+    fc = Executable(os.path.join(build_env_path, "fc"))
 
     realcc = "/bin/mycc"
     prefix = "/spack-test-prefix"

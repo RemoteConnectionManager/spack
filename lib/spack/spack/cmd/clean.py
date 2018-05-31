@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (c) 2013-2017, Lawrence Livermore National Security, LLC.
+# Copyright (c) 2013-2018, Lawrence Livermore National Security, LLC.
 # Produced at the Lawrence Livermore National Laboratory.
 #
 # This file is part of Spack.
@@ -26,8 +26,10 @@ import argparse
 
 import llnl.util.tty as tty
 
-import spack
+import spack.caches
 import spack.cmd
+import spack.repo
+import spack.stage
 
 description = "remove temporary build files and/or downloaded archives"
 section = "build"
@@ -81,8 +83,8 @@ def clean(parser, args):
 
     if args.downloads:
         tty.msg('Removing cached downloads')
-        spack.fetch_cache.destroy()
+        spack.caches.fetch_cache.destroy()
 
     if args.misc_cache:
         tty.msg('Removing cached information on repositories')
-        spack.misc_cache.destroy()
+        spack.caches.misc_cache.destroy()

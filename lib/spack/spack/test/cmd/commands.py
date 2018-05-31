@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (c) 2013-2017, Lawrence Livermore National Security, LLC.
+# Copyright (c) 2013-2018, Lawrence Livermore National Security, LLC.
 # Produced at the Lawrence Livermore National Laboratory.
 #
 # This file is part of Spack.
@@ -39,7 +39,7 @@ spack.main.add_all_commands(parser)
 def test_commands_by_name():
     """Test default output of spack commands."""
     out = commands()
-    assert out.strip().split('\n') == sorted(spack.cmd.all_commands)
+    assert out.strip().split('\n') == sorted(spack.cmd.all_commands())
 
 
 def test_subcommands():

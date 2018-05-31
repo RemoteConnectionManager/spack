@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (c) 2013-2017, Lawrence Livermore National Security, LLC.
+# Copyright (c) 2013-2018, Lawrence Livermore National Security, LLC.
 # Produced at the Lawrence Livermore National Laboratory.
 #
 # This file is part of Spack.
@@ -31,35 +31,35 @@ graph = SpackCommand('graph')
 
 
 @pytest.mark.db
-@pytest.mark.usefixtures('builtin_mock', 'database')
+@pytest.mark.usefixtures('mock_packages', 'database')
 def test_graph_ascii():
     """Tests spack graph --ascii"""
     graph('--ascii', 'dt-diamond')
 
 
 @pytest.mark.db
-@pytest.mark.usefixtures('builtin_mock', 'database')
+@pytest.mark.usefixtures('mock_packages', 'database')
 def test_graph_dot():
     """Tests spack graph --dot"""
     graph('--dot', 'dt-diamond')
 
 
 @pytest.mark.db
-@pytest.mark.usefixtures('builtin_mock', 'database')
+@pytest.mark.usefixtures('mock_packages', 'database')
 def test_graph_normalize():
     """Tests spack graph --normalize"""
     graph('--normalize', 'dt-diamond')
 
 
 @pytest.mark.db
-@pytest.mark.usefixtures('builtin_mock', 'database')
+@pytest.mark.usefixtures('mock_packages', 'database')
 def test_graph_static():
     """Tests spack graph --static"""
     graph('--static', 'dt-diamond')
 
 
 @pytest.mark.db
-@pytest.mark.usefixtures('builtin_mock', 'database')
+@pytest.mark.usefixtures('mock_packages', 'database')
 def test_graph_installed():
     """Tests spack graph --installed"""
 
@@ -70,7 +70,7 @@ def test_graph_installed():
 
 
 @pytest.mark.db
-@pytest.mark.usefixtures('builtin_mock', 'database')
+@pytest.mark.usefixtures('mock_packages', 'database')
 def test_graph_deptype():
     """Tests spack graph --deptype"""
     graph('--deptype', 'all', 'dt-diamond')
