@@ -23,6 +23,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 ##############################################################################
 from spack import *
+import spack.package_extensions
 
 
 class Pkgconf(AutotoolsPackage):
@@ -54,3 +55,4 @@ class Pkgconf(AutotoolsPackage):
         symlink('pkgconf', '{0}/pkg-config'.format(self.prefix.bin))
         symlink('pkgconf.1',
                 '{0}/pkg-config.1'.format(self.prefix.share.man.man1))
+        spack.package_extensions.write_pkgconfig_wrapper(self)
