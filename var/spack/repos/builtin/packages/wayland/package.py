@@ -22,33 +22,39 @@
 # License along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 ##############################################################################
+#
+# This is a template package file for Spack.  We've put "FIXME"
+# next to all the things you'll want to change. Once you've handled
+# them, you can save this file and test your package like this:
+#
+#     spack install wayland
+#
+# You can edit this file again by typing:
+#
+#     spack edit wayland
+#
+# See the Spack documentation for more information on packaging.
+# If you submit this package back to Spack as a pull request,
+# please first remove this boilerplate and all FIXME comments.
+#
 from spack import *
-import sys
 
 
-class Libdrm(Package):
-    """A userspace library for accessing the DRM, direct rendering manager,
-    on Linux, BSD and other systems supporting the ioctl interface."""
+class Wayland(AutotoolsPackage):
+    """FIXME: Put a proper description of your package here."""
 
-    homepage = "http://dri.freedesktop.org/libdrm/"
-    url      = "http://dri.freedesktop.org/libdrm/libdrm-2.4.59.tar.gz"
+    # FIXME: Add a proper url for your package's homepage here.
+    homepage = "http://www.example.com"
+    url      = "https://wayland.freedesktop.org/releases/wayland-1.15.0.tar.xz"
 
-    version('2.4.91', 'd31468ede12851d48f77d9c0eb030411')
-    version('2.4.81', 'dc575dd661a082390e9f1366ca5734b0')
-    version('2.4.75', '743c16109d91a2539dfc9cc56130d695')
-    version('2.4.70', 'a8c275bce5f3d71a5ca25e8fb60df084')
-    version('2.4.59', '105ac7af1afcd742d402ca7b4eb168b6')
-    version('2.4.33', '86e4e3debe7087d5404461e0032231c8')
+    version('1.15.0', 'b7393c17fdce9a8d383edab656c92fd2')
 
-    depends_on('pkgconfig', type='build')
-    depends_on('libpciaccess@0.10:', when=(sys.platform != 'darwin'))
-    depends_on('libpthread-stubs')
+    depends_on('libxml2')
+    depends_on('libffi')
+    depends_on('expat')
 
-    def install(self, spec, prefix):
-        configure('--prefix={0}'.format(prefix),
-                  '--enable-static',
-                  'LIBS=-lrt')  # This fixes a bug with `make check`
-
-        make()
-        make('check')
-        make('install')
+    def configure_args(self):
+        # FIXME: Add arguments other than --prefix
+        # FIXME: If not needed delete this function
+        args = ['--disable-documentation', '--disable-static']
+        return args

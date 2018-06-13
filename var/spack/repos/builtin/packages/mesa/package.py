@@ -36,6 +36,8 @@ class Mesa(AutotoolsPackage):
     _oldurlfmt = "https://mesa.freedesktop.org/archive/older-versions/{0}.x/{1}/mesa-{1}.tar.xz"
     list_depth = 2
 
+    version('18.0.3', 'b260580a26b71a5e52c608e3fe6d08a6')
+    version('17.3.7', '769137f2538562c300c4b76bcb097377')
     version('17.2.3', 'a7dca71afbc7294cb7d505067fd44ef6')
     version('17.2.2', '1a157b5baefb5adf9f4fbb8a6632d74c')
     version('17.1.5', '6cf936fbcaadd98924298a7009e8265d')
@@ -92,6 +94,7 @@ class Mesa(AutotoolsPackage):
     depends_on('libelf', when='+llvm')
     depends_on('damageproto', when='+hwrender')
     depends_on('fixesproto', when='+hwrender')
+    depends_on('wayland-protocols', when='+hwrender')
 
     def url_for_version(self, version):
         """Handle Mesa version-based custom URLs."""
@@ -111,6 +114,8 @@ class Mesa(AutotoolsPackage):
         if '+swrender' in spec:
             drivers = ['swrast']
             args.extend([
+                '--enable-glx=gallium-xlib',
+                '--disable-dri',
                 '--disable-osmesa',
                 '--enable-gallium-osmesa',
                 '--enable-texture-float',
@@ -133,7 +138,11 @@ class Mesa(AutotoolsPackage):
         if '+hwrender' in spec:
             args.append('--enable-xa')
             if spec.version >= Version('17'):
-                args.append('--with-platforms=x11,drm')
+                args.append('--with-platforms=x11,drm,wayland')
+                args.append('--enable-gles1')
+                args.append('--enable-gles2')
+                args.append('--enable-shared-glapi')
+                args.append('--disable-driglx-direct')
             else:
                 args.append('--with-egl-platforms=x11,drm')
             drivers.extend([
@@ -149,7 +158,7 @@ class Mesa(AutotoolsPackage):
                 '--disable-xa',
                 '--disable-dri',
                 '--disable-dri3',
-                '--disable-egl',
+#                '--disable-egl',
                 '--disable-gbm',
                 '--disable-xvmc',
             ])
