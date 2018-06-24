@@ -127,36 +127,12 @@ class Catalyst(CMakePackage):
             lib_dir = self.prefix.lib64
         else:
             lib_dir = self.prefix.lib
-
-        run_env.set('ParaView_DIR', self.prefix)
-
-        # Everything else under lib/paraview-5.4
-        lib_dir = join_path(lib_dir, paraview_subdir)
-        run_env.prepend_path('LIBRARY_PATH', lib_dir)
-        run_env.prepend_path('LD_LIBRARY_PATH', lib_dir)
-
-    def setup_environment(self, spack_env, run_env):
-        # paraview 5.5 and later
-        # - cmake under lib/cmake/paraview-5.5
-        # - libs  under lib
-        # - python bits under lib/python2.8/site-packages
-        if os.path.isdir(self.prefix.lib64):
-            lib_dir = self.prefix.lib64
-        else:
-            lib_dir = self.prefix.lib
-
-        run_env.set('ParaView_DIR', self.prefix)
-        run_env.prepend_path('LIBRARY_PATH', lib_dir)
-        run_env.prepend_path('LD_LIBRARY_PATH', lib_dir)
-
-        if '+python' in self.spec:
-            python_version = self.spec['python'].version.up_to(2)
-            run_env.prepend_path('PYTHONPATH', join_path(lib_dir,
-                                 'python{0}'.format(python_version),
-                                 'site-packages'))
-
-    def setup_dependent_environment(self, spack_env, run_env, dependent_spec):
-        spack_env.set('ParaView_DIR', self.prefix)
+        paraview_version = 'paraview-%s' % self.spec.version.up_to(2)
+        run_env.prepend_path('ParaView_DIR', self.prefix)
+        run_env.prepend_path('LIBRARY_PATH', join_path(lib_dir,
+                             paraview_version))
+        run_env.prepend_path('LD_LIBRARY_PATH', join_path(lib_dir,
+                             paraview_version))
 
     @property
     def root_cmakelists_dir(self):
