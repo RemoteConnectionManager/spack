@@ -35,12 +35,16 @@
 # OpenFOAM distribution.
 #
 ##############################################################################
+import os
+
+import llnl.util.tty as tty
+
 from spack import *
 
 
 class OfCatalyst(CMakePackage):
     """Of-catalyst is a library for OpenFOAM that provides a runtime-selectable
-    function object for embedding ParaView Catalyst in-situ visualization
+    function object for embedding ParaView Catalyst in-situ visualization 
     into arbitrary OpenFOAM simulations.
     Supports in-situ conversion of the following types:
       - finite volume meshes and fields. Single or multi-region.
@@ -57,15 +61,12 @@ class OfCatalyst(CMakePackage):
     homepage = "https://develop.openfoam.com/Community/catalyst"
     gitrepo  = "https://develop.openfoam.com/Community/catalyst.git"
 
-    version('1806', git=gitrepo, tag='v1806')
     version('develop', branch='develop', git=gitrepo)
 
-    variant('full', default=False, description='Build against paraview (full) or catalyst (light)')
+    #variant('source', default=True, description='Install library source')
 
-    depends_on('openfoam-com@1806', when='@1806', type=('build', 'link', 'run'))
-    depends_on('openfoam-com@develop', when='@develop', type=('build', 'link', 'run'))
-    depends_on('catalyst@5.5:', when='~full')
-    depends_on('paraview@5.5:+osmesa~qt', when='+full')
+    depends_on('openfoam-com@develop', when='@develop', type=('build', 'link'))
+    depends_on('catalyst@5.5:')
 
     def setup_environment(self, spack_env, run_env):
         run_env.prepend_path('LD_LIBRARY_PATH', join_path(self.prefix,
@@ -84,11 +85,13 @@ class OfCatalyst(CMakePackage):
 
     def cmake_args(self):
         """Populate cmake arguments for ParaView."""
+        spec = self.spec
+
         cmake_args = [
-            '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY:PATH=%s' % join_path(
-                self.stage.source_path,
-                'spack-build'),
+            '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY:PATH=%s' % join_path(self.stage.source_path, 
+                                                                   'spack-build'),
             '-DCMAKE_INSTALL_PREFIX:PATH=%s' % self.prefix
         ]
 
         return cmake_args
+
