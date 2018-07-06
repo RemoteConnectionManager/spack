@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (c) 2013-2017, Lawrence Livermore National Security, LLC.
+# Copyright (c) 2013-2018, Lawrence Livermore National Security, LLC.
 # Produced at the Lawrence Livermore National Laboratory.
 #
 # This file is part of Spack.
@@ -37,6 +37,7 @@ class Gradle(Package):
     homepage = "https://gradle.org"
     url      = "https://services.gradle.org/distributions/gradle-3.4-all.zip"
 
+    version('4.8.1', 'bf87b4c64bb6a43861f1964fb8a7f3bc')
     version('3.4',    '5ae23dbd730dea22eb79cd97a072f06a')
     version('3.3',    '355f61e9c5d092d49577765ab3712dc0')
     version('3.2.1',  'd44dba900ff364103e1f45c0f4b27bbe')

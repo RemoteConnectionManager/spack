@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (c) 2013-2017, Lawrence Livermore National Security, LLC.
+# Copyright (c) 2013-2018, Lawrence Livermore National Security, LLC.
 # Produced at the Lawrence Livermore National Laboratory.
 #
 # This file is part of Spack.
@@ -38,6 +38,7 @@ class Gotcha(CMakePackage):
             branch="develop")
     version('master', git='https://github.com/LLNL/gotcha.git',
             branch="master")
+    version('1.0.2', git='https://github.com/LLNL/gotcha.git', tag="1.0.2")
     version('0.0.2', git='https://github.com/LLNL/gotcha.git', tag="0.0.2")
 
     def configure_args(self):

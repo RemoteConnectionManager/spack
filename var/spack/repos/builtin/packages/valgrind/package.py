@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (c) 2013-2017, Lawrence Livermore National Security, LLC.
+# Copyright (c) 2013-2018, Lawrence Livermore National Security, LLC.
 # Produced at the Lawrence Livermore National Laboratory.
 #
 # This file is part of Spack.
@@ -45,7 +45,7 @@ class Valgrind(AutotoolsPackage):
     version('3.11.0', '4ea62074da73ae82e0162d6550d3f129')
     version('3.10.1', '60ddae962bc79e7c95cfc4667245707f')
     version('3.10.0', '7c311a72a20388aceced1aa5573ce970')
-    version('develop', svn='svn://svn.valgrind.org/valgrind/trunk')
+    version('develop', git='git://sourceware.org/git/valgrind.git')
 
     variant('mpi', default=True,
             description='Activates MPI support for valgrind')

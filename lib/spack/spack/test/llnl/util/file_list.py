@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (c) 2013-2017, Lawrence Livermore National Security, LLC.
+# Copyright (c) 2013-2018, Lawrence Livermore National Security, LLC.
 # Produced at the Lawrence Livermore National Laboratory.
 #
 # This file is part of Spack.
@@ -22,15 +22,16 @@
 # License along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 ##############################################################################
-
-import fnmatch
 import os
+import fnmatch
 
-import pytest
 import six
-import spack
+import pytest
+
 from llnl.util.filesystem import LibraryList, HeaderList
 from llnl.util.filesystem import find_libraries, find_headers, find
+
+import spack.paths
 
 
 @pytest.fixture()
@@ -211,7 +212,7 @@ class TestHeaderList(object):
 
 
 #: Directory where the data for the test below is stored
-search_dir = os.path.join(spack.test_path, 'data', 'directory_search')
+search_dir = os.path.join(spack.paths.test_path, 'data', 'directory_search')
 
 
 @pytest.mark.parametrize('search_fn,search_list,root,kwargs', [
@@ -295,4 +296,4 @@ def test_searching_order(search_fn, search_list, root, kwargs):
 ])
 def test_find_with_globbing(root, search_list, kwargs, expected):
     matches = find(root, search_list, **kwargs)
-    assert matches == expected
+    assert sorted(matches) == sorted(expected)

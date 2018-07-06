@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (c) 2013-2017, Lawrence Livermore National Security, LLC.
+# Copyright (c) 2013-2018, Lawrence Livermore National Security, LLC.
 # Produced at the Lawrence Livermore National Laboratory.
 #
 # This file is part of Spack.
@@ -38,7 +38,7 @@ class Percept(CMakePackage):
     version('develop',
             git='https://github.com/PerceptTools/percept.git', branch='master')
 
-    depends_on('googletest')
+    depends_on('googletest~shared')
     depends_on('opennurbs@percept')
     depends_on('boost+graph+mpi')
     depends_on('yaml-cpp+pic~shared@0.5.3:')

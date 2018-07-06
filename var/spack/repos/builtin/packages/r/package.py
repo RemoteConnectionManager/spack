@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (c) 2013-2017, Lawrence Livermore National Security, LLC.
+# Copyright (c) 2013-2018, Lawrence Livermore National Security, LLC.
 # Produced at the Lawrence Livermore National Laboratory.
 #
 # This file is part of Spack.
@@ -40,6 +40,8 @@ class R(AutotoolsPackage):
 
     extendable = True
 
+    version('3.5.0', 'c0455dbfa76ca807e4dfa93d49dcc817')
+    version('3.4.4', '9d6f73be072531e95884c7965ff80cd8')
     version('3.4.3', 'bc55db54f992fda9049201ca62d2a584')
     version('3.4.2', '1cd6d37850188e7f190f1eb94a24ca1f')
     version('3.4.1', '3a79c01dc0527c62e80ffb1c489297ea')
@@ -48,6 +50,7 @@ class R(AutotoolsPackage):
     version('3.3.2', '2437014ef40641cdc9673e89c040b7a8')
     version('3.3.1', 'f50a659738b73036e2f5635adbd229c5')
     version('3.3.0', '5a7506c8813432d1621c9725e86baf7a')
+    version('3.2.5', '7b23ee70cfb383be3bd4360e3c71d8c3')
     version('3.2.3', '1ba3dac113efab69e706902810cc2970')
     version('3.2.2', '57cef5c2e210a5454da1979562a10e5b')
     version('3.2.1', 'c2aac8b40f84e08e7f8c9068de9239a3')
@@ -64,7 +67,7 @@ class R(AutotoolsPackage):
     depends_on('blas', when='+external-lapack')
     depends_on('lapack', when='+external-lapack')
 
-    # Concrete dependencies
+    # Concrete dependencies.
     depends_on('readline')
     depends_on('ncurses')
     depends_on('icu4c')
@@ -116,7 +119,7 @@ class R(AutotoolsPackage):
 
         if '+external-lapack' in spec:
             config_args.extend([
-                '--with-blas',
+                '--with-blas={0}'.format(spec['blas'].libs),
                 '--with-lapack'
             ])
 

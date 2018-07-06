@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (c) 2013-2017, Lawrence Livermore National Security, LLC.
+# Copyright (c) 2013-2018, Lawrence Livermore National Security, LLC.
 # Produced at the Lawrence Livermore National Laboratory.
 #
 # This file is part of Spack.
@@ -59,7 +59,7 @@ class NetlibScalapack(CMakePackage):
     depends_on('cmake', when='@2.0.0:', type='build')
 
     @property
-    def scalapack_libs(self):
+    def libs(self):
         # Note that the default will be to search
         # for 'libnetlib-scalapack.<suffix>'
         shared = True if '+shared' in self.spec else False

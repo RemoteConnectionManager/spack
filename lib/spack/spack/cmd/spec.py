@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (c) 2013-2017, Lawrence Livermore National Security, LLC.
+# Copyright (c) 2013-2018, Lawrence Livermore National Security, LLC.
 # Produced at the Lawrence Livermore National Laboratory.
 #
 # This file is part of Spack.
@@ -25,7 +25,7 @@
 from __future__ import print_function
 
 import argparse
-import spack
+
 import spack.cmd
 import spack.cmd.common.arguments as arguments
 
