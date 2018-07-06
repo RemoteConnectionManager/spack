@@ -34,6 +34,9 @@ class Paraview(CMakePackage):
     url      = "http://www.paraview.org/files/v5.3/ParaView-v5.3.0.tar.gz"
     _urlfmt  = 'http://www.paraview.org/files/v{0}/ParaView-v{1}{2}.tar.gz'
 
+    version('5.5.2', '7eb93c31a1e5deb7098c3b4275e53a4a')
+    version('5.5.1', 'a7d92a45837b67c3371006cc45163277')
+    version('5.5.0', 'a8f2f41edadffdcc89b37fdc9aa7f005')
     version('5.4.1', '4030c70477ec5a85aa72d6fc86a30753')
     version('5.4.0', 'b92847605bac9036414b644f33cb7163')
     version('5.3.0', '68fbbbe733aa607ec13d1db1ab5eba71')
@@ -51,6 +54,8 @@ class Paraview(CMakePackage):
     variant('opengl2', default=True, description='Enable OpenGL2 backend')
     variant('examples', default=False, description="Build examples")
     variant('hdf5', default=False, description="Use external HDF5")
+    variant('netcdf', default=False, description="Use external NETCDF")
+    variant('expat', default=False, description="Use external EXPAT")
 
     depends_on('python@2:2.8', when='+python')
     depends_on('py-numpy', when='+python', type='run')
@@ -74,7 +79,8 @@ class Paraview(CMakePackage):
     depends_on('libpng')
     depends_on('libtiff')
     depends_on('libxml2')
-    # depends_on('netcdf')
+    depends_on('netcdf', when='+netcdf')
+    depends_on('expat', when='+expat')
     # depends_on('netcdf-cxx')
     # depends_on('protobuf') # version mismatches?
     # depends_on('sqlite') # external version not supported
@@ -89,6 +95,9 @@ class Paraview(CMakePackage):
     # Broken installation (ui_pqExportStateWizard.h) - fixed in 5.2.0
     patch('ui_pqExportStateWizard.patch', when='@:5.1.2')
 
+    # Broken vtk-m config. Upstream catalyst changes
+    patch('vtkm-catalyst-pv551.patch', when='@5.5.0:5.5.2')
+
     def url_for_version(self, version):
         """Handle ParaView version-based custom URLs."""
         if version < Version('5.1.0'):
@@ -96,34 +105,64 @@ class Paraview(CMakePackage):
         else:
             return self._urlfmt.format(version.up_to(2), version, '')
 
+    @property
+    def paraview_subdir(self):
+        """The paraview subdirectory name as paraview-major.minor"""
+        return 'paraview-{0}'.format(self.spec.version.up_to(2))
+
     def setup_dependent_environment(self, spack_env, run_env, dependent_spec):
         if os.path.isdir(self.prefix.lib64):
             lib_dir = self.prefix.lib64
         else:
             lib_dir = self.prefix.lib
-        paraview_version = 'paraview-%s' % self.spec.version.up_to(2)
         spack_env.set('PARAVIEW_VTK_DIR',
-                      join_path(lib_dir, 'cmake', paraview_version))
+                      join_path(lib_dir, 'cmake', paraview_subdir))
 
+    @when('@:5.4.1')
     def setup_environment(self, spack_env, run_env):
+        # paraview 5.4 and earlier
+        # - cmake under lib/cmake/paraview-5.4
+        # - libs  under lib/paraview-5.4
+        # - python bits under lib/paraview-5.4/site-packages
         if os.path.isdir(self.prefix.lib64):
             lib_dir = self.prefix.lib64
         else:
             lib_dir = self.prefix.lib
-        paraview_version = 'paraview-%s' % self.spec.version.up_to(2)
-        run_env.prepend_path('LIBRARY_PATH', join_path(lib_dir,
-                             paraview_version))
-        run_env.prepend_path('LD_LIBRARY_PATH', join_path(lib_dir,
-                             paraview_version))
+
         run_env.set('PARAVIEW_VTK_DIR',
-                    join_path(lib_dir, 'cmake', paraview_version))
+                    join_path(lib_dir, 'cmake', paraview_subdir))
+
+        # Everything else under lib/paraview-5.4
+        lib_dir = join_path(lib_dir, paraview_subdir)
+        run_env.prepend_path('LIBRARY_PATH', lib_dir)
+        run_env.prepend_path('LD_LIBRARY_PATH', lib_dir)
+
         if '+python' in self.spec:
+            pv_pydir = join_path(lib_dir, 'site-packages')
+            run_env.prepend_path('PYTHONPATH', pv_pydir)
+            run_env.prepend_path('PYTHONPATH', join_path(pv_pydir, 'vtk'))
+
+    def setup_environment(self, spack_env, run_env):
+        # paraview 5.5 and later
+        # - cmake under lib/cmake/paraview-5.5
+        # - libs  under lib
+        # - python bits under lib/python2.8/site-packages
+        if os.path.isdir(self.prefix.lib64):
+            lib_dir = self.prefix.lib64
+        else:
+            lib_dir = self.prefix.lib
+
+        run_env.set('PARAVIEW_VTK_DIR',
+                    join_path(lib_dir, 'cmake', paraview_subdir))
+
+        run_env.prepend_path('LIBRARY_PATH', lib_dir)
+        run_env.prepend_path('LD_LIBRARY_PATH', lib_dir)
+
+        if '+python' in self.spec:
+            python_version = self.spec['python'].version.up_to(2)
             run_env.prepend_path('PYTHONPATH', join_path(lib_dir,
-                                 paraview_version))
-            run_env.prepend_path('PYTHONPATH', join_path(lib_dir,
-                                 paraview_version, 'site-packages'))
-            run_env.prepend_path('PYTHONPATH', join_path(lib_dir,
-                                 paraview_version, 'site-packages', 'vtk'))
+                                 'python{0}'.format(python_version),
+                                 'site-packages'))
 
     def cmake_args(self):
         """Populate cmake arguments for ParaView."""
@@ -154,7 +193,8 @@ class Paraview(CMakePackage):
             '-DVTK_USE_SYSTEM_HDF5:BOOL=%s' % variant_bool('+hdf5'),
             '-DVTK_USE_SYSTEM_JPEG:BOOL=ON',
             '-DVTK_USE_SYSTEM_LIBXML2:BOOL=ON',
-            '-DVTK_USE_SYSTEM_NETCDF:BOOL=OFF',
+            '-DVTK_USE_SYSTEM_NETCDF:BOOL=%s' % variant_bool('+netcdf'),
+            '-DVTK_USE_SYSTEM_EXPAT:BOOL=%s' % variant_bool('+expat'),
             '-DVTK_USE_SYSTEM_TIFF:BOOL=ON',
             '-DVTK_USE_SYSTEM_ZLIB:BOOL=ON',
         ]
