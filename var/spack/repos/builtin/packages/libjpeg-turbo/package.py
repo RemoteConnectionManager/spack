@@ -23,6 +23,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 ##############################################################################
 from spack import *
+import os
+import platform
 
 
 class LibjpegTurbo(Package):
@@ -36,10 +38,13 @@ class LibjpegTurbo(Package):
 
     version('1.5.90', '85f7f9c377b70cbf48e61726097d4efa')
     version('1.5.3', '5b7549d440b86c98a517355c102d155e')
-    version('1.5.0', 'eff98ac84de05eafc65ae96caa6e23e9')
+    version('1.5.1', '55deb139b0cac3c8200b75d485fc13f3')
+    version('1.5.0', '3fc5d9b6a8bce96161659ae7a9939257')
+    version('1.4.2', '86b0d5f7507c2e6c21c00219162c3c44')
     version('1.3.1', '5e4bc19c3cb602bcab1296b9bee5124c')
 
     provides('jpeg')
+    variant('java', default=False, description='Enable Java build')
 
     # Can use either of these. But in the current version of the package
     # only nasm is used. In order to use yasm an environmental variable
@@ -51,6 +56,7 @@ class LibjpegTurbo(Package):
     depends_on('automake', type='build', when="@1.3.1:1.5.3")
     depends_on('libtool', type='build', when="@1.3.1:1.5.3")
     depends_on('cmake', type='build', when="@1.5.90:")
+    depends_on('java', when='+java', type='build')
 
     @property
     def libs(self):
@@ -71,3 +77,21 @@ class LibjpegTurbo(Package):
             cmake('..', *cmake_args)
             make()
             make('install')
+
+    def configure_args(self):
+        args = []
+        if '+java' in self.spec:
+            args.append('--with-java')
+        else:
+            args.append('--without-java')
+        return args
+
+    def setup_environment(self, spack_env, run_env):
+        if '+java' in self.spec:
+            spack_env.set(
+                'JNI_CFLAGS',
+                '-I' + self.spec['jdk'].prefix.include +
+                ' ' + '-I' +
+                os.path.join(self.spec['jdk'].prefix.include,
+                             platform.system().lower()),
+                separator=' ')
