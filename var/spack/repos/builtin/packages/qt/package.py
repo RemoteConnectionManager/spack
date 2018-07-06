@@ -281,7 +281,8 @@ class Qt(Package):
             config_args.append('-I%s/dbus-1.0/include' % dbus.lib)
             config_args.append('-I%s/dbus-1.0' % dbus.include)
             config_args.append('-L%s' % dbus.lib)
-            config_args.append('-ldbus-1')
+            if '@4' in self.spec:
+                config_args.append('-ldbus-1')
         else:
             config_args.append('-no-dbus')
 
