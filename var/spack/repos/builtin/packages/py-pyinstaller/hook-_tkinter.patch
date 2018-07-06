@@ -1,0 +1,13 @@
+--- PyInstaller-3.3_orig/PyInstaller/hooks/hook-_tkinter.py	2017-09-21 19:33:04.000000000 +0200
++++ PyInstaller-3.3/PyInstaller/hooks/hook-_tkinter.py	2017-12-18 12:33:17.825928126 +0100
+@@ -141,7 +141,9 @@
+         'from _tkinter import TK_VERSION; print(TK_VERSION)')
+ 
+     # TK_LIBRARY is in the same prefix as Tcl.
+-    tk_root = os.path.join(os.path.dirname(tcl_root), 'tk%s' % tk_version)
++    #original line#tk_root = os.path.join(os.path.dirname(tcl_root), 'tk%s' % tk_version)
++    ###### Above assumpion is invalid under Spack deployment ... so replaced by: 
++    tk_root = exec_statement("import Tkinter; r=Tkinter.Tk(); tk_root=r.tk.exprstring('$tk_library'); print(tk_root)")
+     return tcl_root, tk_root
+ 
+ 
