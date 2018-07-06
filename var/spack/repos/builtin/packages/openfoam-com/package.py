@@ -448,6 +448,7 @@ class OpenfoamCom(Package):
         variable since it would mask the normal OpenFOAM cleanup of
         previous versions.
         """
+        #spack_env.set('FOAM_PROJECT_DIR', self.projectdir)
         self.setup_environment(spack_env, run_env)
 
     @property
