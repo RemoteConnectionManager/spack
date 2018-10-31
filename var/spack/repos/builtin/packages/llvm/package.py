@@ -515,6 +515,10 @@ class Llvm(CMakePackage):
     # Github issue #4986
     patch('llvm_gcc7.patch', when='@4.0.0:4.0.1+lldb %gcc@7.0:')
 
+    # issue on powerpc
+    # https://bugzilla.redhat.com/show_bug.cgi?id=1538817
+    patch('ppc64le.patch', when='@7.0.0 %gcc@4.8.5: arch=ppc64le')
+
     @run_before('cmake')
     def check_darwin_lldb_codesign_requirement(self):
         if not self.spec.satisfies('+lldb platform=darwin'):

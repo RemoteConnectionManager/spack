@@ -1,0 +1,12 @@
+--- a/projects/libcxx/include/thread	2018-10-30 18:43:11.772028693 +0100
++++ b/projects/libcxx/include/thread	2018-10-30 18:03:27.273597949 +0100
+@@ -435,7 +435,8 @@
+     using namespace chrono;
+     if (__d > duration<_Rep, _Period>::zero())
+     {
+-        _LIBCPP_CONSTEXPR duration<long double> _Max = nanoseconds::max();
++        //_LIBCPP_CONSTEXPR duration<long double> _Max = nanoseconds::max();
++        duration<long double> _Max = nanoseconds::max();
+         nanoseconds __ns;
+         if (__d < _Max)
+         {
