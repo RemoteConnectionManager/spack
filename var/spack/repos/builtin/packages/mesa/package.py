@@ -105,12 +105,13 @@ class Mesa(AutotoolsPackage):
             if '+llvm' in spec:
                 # For @17.1.1:17.1.2 the swr driver requires C++14 support
                 # Should be fixed in 17.1.3, but can still encounter problems
-                if spec.version >= Version('17') and \
-                   spec.version < Version('17.2'):
-                    if spec.satisfies('%gcc@4.9:'):
+                if not spec.satisfies('arch=ppc64le'):
+                    if spec.version >= Version('17') and \
+                       spec.version < Version('17.2'):
+                        if spec.satisfies('%gcc@4.9:'):
+                            drivers.append('swr')
+                    else:
                         drivers.append('swr')
-                else:
-                    drivers.append('swr')
         else:
             args.append('--disable-gallium-osmesa')
             # Fallback for "~hwrender~swrender" -> old osmesa
