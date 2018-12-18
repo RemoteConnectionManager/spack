@@ -92,30 +92,6 @@ class Catalyst(CMakePackage):
 
         return selected
 
-    @property
-    def paraview_subdir(self):
-        """The paraview subdirectory name as paraview-major.minor"""
-        return 'paraview-{0}'.format(self.spec.version.up_to(2))
-
-    @property
-    def editions(self):
-        """Transcribe spack variants into names of Catalyst Editions"""
-        selected = ['Base']  # Always required
-
-        if '+python' in self.spec:
-            selected.append('Enable-Python')
-
-        if '+essentials' in self.spec:
-            selected.append('Essentials')
-
-        if '+extras' in self.spec:
-            selected.append('Extras')
-
-        if '+rendering' in self.spec:
-            selected.append('Rendering-Base')
-
-        return selected
-
     def do_stage(self, mirror_only=False):
         """Unpacks and expands the fetched tarball.
         Then, generate the catalyst source files."""
