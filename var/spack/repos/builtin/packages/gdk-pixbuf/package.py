@@ -40,7 +40,7 @@ class GdkPixbuf(Package):
 
     # Replace the docbook stylesheet URL with the one that our
     # docbook-xsl package uses/recognizes.
-    patch('docbook-cdn.patch')
+    patch('docbook-cdn.patch', when='@2.37.0:')
 
     def url_for_version(self, version):
         url = "https://ftp.acc.umu.se/pub/gnome/sources/gdk-pixbuf/{0}/gdk-pixbuf-{1}.tar.xz"
