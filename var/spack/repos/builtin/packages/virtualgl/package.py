@@ -24,8 +24,4 @@ class Virtualgl(CMakePackage):
     depends_on("libxau")
     depends_on("libxcb")
     depends_on("xcb-util-keysyms")
-    # virtualgl require OpenGL but also wants to link libglu
-    # on systems without development packages, provide with spack and depends
-    # on mesa-glu, but we do not want Mesa OpenGL sw emulation, so added
-    # variant on mesa-glu to disable dependencies on sw emulated OpenGL
-    depends_on("mesa-glu~mesa")
+    depends_on("glu)
