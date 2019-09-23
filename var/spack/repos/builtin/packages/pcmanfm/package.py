@@ -22,6 +22,7 @@ class Pcmanfm(AutotoolsPackage):
     depends_on('pkgconfig', type='build')
     depends_on('perl-xml-parser', type='build')
     depends_on('libx11')
+    depends_on('libxinerama')
     depends_on('lxde-libfm')
 
     def install(self, spec, prefix):
