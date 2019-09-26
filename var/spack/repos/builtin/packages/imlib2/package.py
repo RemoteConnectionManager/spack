@@ -16,6 +16,8 @@ class Imlib2(AutotoolsPackage):
     version('1.5.1', sha256='fa4e57452b8843f4a70f70fd435c746ae2ace813250f8c65f977db5d7914baae')
 
     depends_on('libx11')
+    depends_on('libxext')
+    depends_on('freetype')
 
     def install(self, spec, prefix):
         make()
