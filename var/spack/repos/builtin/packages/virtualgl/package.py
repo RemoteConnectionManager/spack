@@ -20,3 +20,5 @@ class Virtualgl(CMakePackage):
 
     depends_on("jpeg")
     depends_on("glu")
+    depends_on("libx11")
+    depends_on("libxext")
