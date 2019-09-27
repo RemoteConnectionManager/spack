@@ -19,6 +19,7 @@ import llnl.util.filesystem as fs
 import llnl.util.tty as tty
 from llnl.util.tty.color import colorize
 
+import spack.concretize
 import spack.error
 import spack.hash_types as ht
 import spack.repo
@@ -514,6 +515,7 @@ class Environment(object):
                 path to the view.
         """
         self.path = os.path.abspath(path)
+        self.concretize_together = False
         self.clear()
 
         if init_file:
@@ -591,6 +593,8 @@ class Environment(object):
                               for name, values in enable_view.items())
         else:
             self.views = {}
+        configuretion = config_dict(self.yaml)
+        self.concretize_together = configuretion.get('concretize_together')
 
     @property
     def user_specs(self):
@@ -845,6 +849,32 @@ class Environment(object):
             self.concretized_order = []
             self.specs_by_hash = {}
 
+        if self.concretize_together:
+            return self._concretize_together()
+
+        return self._concretize_separately()
+
+    def _concretize_together(self):
+        # Exit early if the set of concretized specs is the set of user specs
+        user_specs_did_not_change = not bool(
+            set(self.user_specs) - set(self.concretized_user_specs)
+        )
+        if user_specs_did_not_change:
+            return []
+
+        self.concretized_user_specs = []
+        self.concretized_order = []
+        self.specs_by_hash = {}
+
+        concrete_specs = spack.concretize.concretize_specs_together(
+            *self.user_specs
+        )
+        concretized_specs = [x for x in zip(self.user_specs, concrete_specs)]
+        for abstract, concrete in concretized_specs:
+            self._add_concrete_spec(abstract, concrete)
+        return concretized_specs
+
+    def _concretize_separately(self):
         # keep any concretized specs whose user specs are still in the manifest
         old_concretized_user_specs = self.concretized_user_specs
         old_concretized_order = self.concretized_order
@@ -875,6 +905,13 @@ class Environment(object):
         This will automatically concretize the single spec, but it won't
         affect other as-yet unconcretized specs.
         """
+        if self.concretize_together:
+            msg = 'cannot install a single spec in an environment that is ' \
+                  'configured to be concretized together. Run instead:\n\n' \
+                  '    $ spack add <spec>\n' \
+                  '    $ spack install\n'
+            raise SpackEnvironmentError(msg)
+
         spec = Spec(user_spec)
 
         if self.add(spec):
@@ -1291,7 +1328,7 @@ class Environment(object):
     def __enter__(self):
         self._previous_active = _active_environment
         activate(self)
-        return
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         deactivate()
