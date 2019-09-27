@@ -149,7 +149,7 @@ class Qt(Package):
 
     # Non-macOS dependencies and special macOS constraints
     if MACOS_VERSION is None:
-        depends_on("fontconfig")
+        depends_on("fontconfig", when='freetype=spack')
         depends_on("libx11")
         depends_on("libxcb")
         depends_on("libxkbcommon")
@@ -318,6 +318,9 @@ class Qt(Package):
                 '-system-freetype',
                 '-I{0}/freetype2'.format(self.spec['freetype'].prefix.include)
             ])
+            if not MACOS_VERSION:
+                config_args.append('-fontconfig')
+
         elif self.spec.variants['freetype'].value == 'qt':
             config_args.append('-qt-freetype')
         else:
@@ -346,9 +349,6 @@ class Qt(Package):
 
         if self.spec.satisfies('@5.7:'):
             config_args.append('-system-doubleconversion')
-
-        if not MACOS_VERSION:
-            config_args.append('-fontconfig')
 
         if '@:5.7.1' in self.spec:
             config_args.append('-no-openvg')
@@ -427,7 +427,7 @@ class Qt(Package):
             '-{0}gtkstyle'.format('' if '+gtk' in spec else 'no-'),
             '-{0}webkit'.format('' if '+webkit' in spec else 'no-'),
             '-{0}phonon'.format('' if '+phonon' in spec else 'no-'),
-            '-arch', str(spec.architecture.target),
+            '-arch', str(spec.target.family),
         ])
 
         # Disable phonon backend until gstreamer is setup as dependency
