@@ -110,6 +110,7 @@ class Paraview(CMakePackage):
 
     # Broken vtk-m config. Upstream catalyst changes
     patch('vtkm-catalyst-pv551.patch', when='@5.5.0:5.5.2')
+    patch('streamline_missing_doc.patch', when='@5.5.0:5.5.2')
 
     def url_for_version(self, version):
         _urlfmt  = 'http://www.paraview.org/files/v{0}/ParaView-v{1}{2}.tar.{3}'
