@@ -80,6 +80,7 @@ class Paraview(CMakePackage):
     depends_on('gl@3.2:', when='+opengl2')
     depends_on('gl@1.2:', when='~opengl2')
     depends_on('libxt', when='~osmesa platform=linux')
+    depends_on('glx', when='~osmesa platform=linux')
     conflicts('+qt', when='+osmesa')
 
     depends_on('bzip2')
