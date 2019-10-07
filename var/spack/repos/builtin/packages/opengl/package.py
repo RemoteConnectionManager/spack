@@ -74,3 +74,10 @@ class Opengl(Package):
                                   shared=True, recursive=False)
             if libs:
                 return libs
+
+    def setup_dependent_environment(self, spack_env, run_env, dependent_spec):
+        spack_env.prepend_path(
+            'LD_LIBRARY_PATH', join_path(self.prefix, 'lib64'))
+        run_env.prepend_path(
+            'LD_LIBRARY_PATH', join_path(self.prefix, 'lib64'))
+
