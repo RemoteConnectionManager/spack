@@ -38,5 +38,5 @@ class PyPyqt5(SIPPackage):
         return [
             '--pyuic5-interpreter', self.spec['python'].command.path,
             '--sipdir', self.prefix.share.sip.PyQt5,
-            '--stubsdir', join_path(site_packages_dir, 'PyQt5'),
+            '--stubsdir', join_path(self.site_packages_dir(), 'PyQt5'),
         ]
