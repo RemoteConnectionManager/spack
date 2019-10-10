@@ -14,6 +14,7 @@ class Dislin(Package):
     homepage = "http://www.mps.mpg.de/dislin"
     url      = "ftp://ftp.gwdg.de/pub/grafik/dislin/linux/i586_64/dislin-11.0.linux.i586_64.tar.gz"
 
+    version('11.2.linux.i586_64', '803544986819d4e9a8b78ff2f97278d9')
     version('11.1.linux.i586_64', '34218c257efedaf706f058bdf111ce9d')
     version('11.0.linux.i586_64', '6fb099b54f41db009cafc702eebb5bc6')
 
@@ -46,7 +47,7 @@ class Dislin(Package):
         run_env.prepend_path('PATH', self.prefix)
         run_env.prepend_path('LD_LIBRARY_PATH', self.prefix)
         run_env.prepend_path('LD_LIBRARY_PATH', self.spec['motif'].prefix.lib)
-        run_env.prepend_path('LD_LIBRARY_PATH', self.spec['mesa'].prefix.lib)
+        run_env.prepend_path('LD_LIBRARY_PATH', self.spec['gl'].prefix.lib)
 
     def setup_dependent_environment(self, spack_env, run_env, dependent_spec):
         run_env.prepend_path('LD_LIBRARY_PATH', self.prefix)
