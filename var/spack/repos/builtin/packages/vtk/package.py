@@ -37,6 +37,7 @@ class Vtk(CMakePackage):
     variant('xdmf', default=False, description='Build XDMF file support')
     variant('ffmpeg', default=False, description='Build with FFMPEG support')
     variant('mpi', default=True, description='Enable MPI support')
+    variant('examples', default=False, description='Build examples')
 
     patch('gcc.patch', when='@6.1.0')
 
@@ -61,6 +62,7 @@ class Vtk(CMakePackage):
 
     if sys.platform != 'darwin':
         depends_on('glx', when='~osmesa')
+        depends_on('libxt', when='~osmesa')
 
     # Note: it is recommended to use mesa+llvm, if possible.
     # mesa default is software rendering, llvm makes it faster
@@ -140,6 +142,10 @@ class Vtk(CMakePackage):
 
         if '+ffmpeg' in spec:
             cmake_args.extend(['-DModule_vtkIOFFMPEG:BOOL=ON'])
+
+        if '+examples' in spec:
+            cmake_args.extend(['-DBUILD_EXAMPLES:BOOL=ON'])
+            cmake_args.extend(['-DBUILD_TESTING:BOOL=ON'])
 
         # Enable/Disable wrappers for Python.
         if '+python' in spec:
