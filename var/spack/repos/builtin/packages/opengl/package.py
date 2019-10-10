@@ -78,6 +78,10 @@ class Opengl(Package):
     def setup_dependent_environment(self, spack_env, run_env, dependent_spec):
         spack_env.prepend_path(
             'LD_LIBRARY_PATH', join_path(self.prefix, 'lib64'))
+        spack_env.prepend_path(
+            'LD_LIBRARY_PATH', join_path(self.prefix, 'lib64', 'libglvnd'))
         run_env.prepend_path(
             'LD_LIBRARY_PATH', join_path(self.prefix, 'lib64'))
+        run_env.prepend_path(
+            'LD_LIBRARY_PATH', join_path(self.prefix, 'lib64', 'libglvnd'))
 
