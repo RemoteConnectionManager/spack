@@ -16,6 +16,7 @@ class Leafpad(AutotoolsPackage):
     version('0.8.18.1', sha256='959d22ae07f22803bc66ff40d373a854532a6e4732680bf8a96a3fbcb9f80a2c')
 
     depends_on('gtkplus')
+    depends_on('intltool')
 
     def install(self, spec, prefix):
         make()
