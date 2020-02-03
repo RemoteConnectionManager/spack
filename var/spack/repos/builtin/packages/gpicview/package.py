@@ -16,6 +16,7 @@ class Gpicview(AutotoolsPackage):
 
     depends_on('perl-xml-parser', type='build')
     depends_on('gtkplus')
+    depends_on('intltool')
 
     def install(self, spec, prefix):
         make()
