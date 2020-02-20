@@ -4,6 +4,8 @@
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 from spack import *
+import os
+import platform
 
 
 class LibjpegTurbo(Package):
@@ -23,6 +25,7 @@ class LibjpegTurbo(Package):
     version('1.3.1', sha256='5008aeeac303ea9159a0ec3ccff295434f4e63b05aed4a684c9964d497304524')
 
     provides('jpeg')
+    variant('java', default=False, description='Enable Java build')
 
     # Can use either of these. But in the current version of the package
     # only nasm is used. In order to use yasm an environmental variable
@@ -34,6 +37,7 @@ class LibjpegTurbo(Package):
     depends_on('automake', type='build', when='@1.3.1:1.5.3')
     depends_on('libtool', type='build', when='@1.3.1:1.5.3')
     depends_on('cmake', type='build', when='@1.5.90:')
+    depends_on('java', when='+java', type='build')
 
     @property
     def libs(self):
@@ -58,7 +62,8 @@ class LibjpegTurbo(Package):
     @when('@1.3.1:1.5.3')
     def install(self, spec, prefix):
         autoreconf('-ifv')
-        configure('--prefix=%s' % prefix)
+        options = ['--prefix={0}'.format(prefix)] + self.configure_args()
+        configure(*options)
         make()
         make('install')
 
@@ -72,3 +77,21 @@ class LibjpegTurbo(Package):
             cmake('..', *cmake_args)
             make()
             make('install')
+
+    def configure_args(self):
+        args = []
+        if '+java' in self.spec:
+            args.append('--with-java')
+        else:
+            args.append('--without-java')
+        return args
+
+    def setup_environment(self, spack_env, run_env):
+        if '+java' in self.spec:
+            spack_env.set(
+                'JNI_CFLAGS',
+                '-I' + self.spec['jdk'].prefix.include +
+                ' ' + '-I' +
+                os.path.join(self.spec['jdk'].prefix.include,
+                             platform.system().lower()),
+                separator=' ')
