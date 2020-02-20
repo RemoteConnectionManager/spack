@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 from spack import *
+import llnl.util.tty as tty
 
 
 class XkeyboardConfig(AutotoolsPackage):
@@ -16,12 +17,25 @@ class XkeyboardConfig(AutotoolsPackage):
 
     version('2.18', sha256='d5c511319a3bd89dc40622a33b51ba41a2c2caad33ee2bfe502363fcc4c3817d')
 
+    variant('xorg',
+            default=False,
+            description='add xorg sysmlinks to base in share/X11/xkb/rules/')
+
     depends_on('libx11@1.4.3:')
 
     depends_on('libxslt', type='build')
     depends_on('pkgconfig', type='build')
     depends_on('intltool@0.30:', type='build')
     depends_on('xproto@7.0.20:', type='build')
+
+    @run_after('install')
+    def symlink_xorg(self):
+        if '+xorg' in self.spec:
+            tty.warn('linking xorg->base in ' +
+                     self.prefix.share.X11.xkb.rules)
+            with working_dir(self.prefix.share.X11.xkb.rules):
+                for suffix in ('', '.lst', '.xml'):
+                    symlink('base{0}'.format(suffix), 'xorg{0}'.format(suffix))
 
     # TODO: missing dependencies
     # xgettext
