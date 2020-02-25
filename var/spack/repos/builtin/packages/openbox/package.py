@@ -18,10 +18,28 @@ class Openbox(AutotoolsPackage):
 
     depends_on('pango')
     depends_on('libx11')
+    depends_on('libsm')
+    depends_on('libice')
 
     def install(self, spec, prefix):
         make()
         make('install')
+
+    def configure_args(self):
+        spec = self.spec
+        ldflags=[]
+        cppflags=[]
+        for dep in ['libsm', 'libice']:
+            ldflags.append('-L'+spec[dep].prefix.lib)
+            cppflags.append('-I'+spec[dep].prefix.include)
+        config_args = [
+            '--x-libraries={0}'.format(spec['libx11'].prefix.lib),
+            '--x-includes={0}'.format(spec['libx11'].prefix.lib),
+        ]
+        config_args.append('LDFLAGS=' + ' '.join(ldflags))
+        config_args.append('CPPFLAGS=' + ' '.join(cppflags))
+        return config_args
+
     def setup_environment(self, spack_env, run_env):
         spack_env.prepend_path("XDG_DATA_DIRS",
                                self.prefix.share)
