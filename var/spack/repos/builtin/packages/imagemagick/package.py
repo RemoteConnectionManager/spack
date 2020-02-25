@@ -20,6 +20,8 @@ class Imagemagick(AutotoolsPackage):
 
     depends_on('jpeg')
     depends_on('pango')
+    depends_on('libx11')
+    depends_on('libsm')
     depends_on('libtool', type='build')
     depends_on('libpng')
     depends_on('freetype')
@@ -30,7 +32,19 @@ class Imagemagick(AutotoolsPackage):
 
     def configure_args(self):
         spec = self.spec
+        ldflags=[]
+        cppflags=[]
+
         gs_font_dir = join_path(spec['ghostscript-fonts'].prefix.share, "font")
-        return [
+        config_args = [
             '--with-gs-font-dir={0}'.format(gs_font_dir)
         ]
+        for dep in ['libsm', 'libx11']:
+            ldflags.append('-L'+spec[dep].prefix.lib)
+            cppflags.append('-I'+spec[dep].prefix.include)
+
+        config_args.append('LDFLAGS=' + ' '.join(ldflags))
+        config_args.append('CPPFLAGS=' + ' '.join(cppflags))
+
+        return config_args
+
