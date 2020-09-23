@@ -145,8 +145,8 @@ default_compiler_entry = {
     'paths': {
         'cc': 'cc-path',
         'cxx': 'cxx-path',
-        'fc': None,
-        'f77': None
+        'fc': 'fc-path',
+        'f77': 'f77-path'
     },
     'flags': {},
     'modules': None
@@ -165,6 +165,8 @@ class MockCompiler(Compiler):
              default_compiler_entry['paths']['fc'],
              default_compiler_entry['paths']['f77']])
 
+    _get_compiler_link_paths = Compiler._get_compiler_link_paths
+
     @property
     def name(self):
         return "mockcompiler"
@@ -172,6 +174,12 @@ class MockCompiler(Compiler):
     @property
     def version(self):
         return "1.0.0"
+
+    _verbose_flag = "--verbose"
+
+    @property
+    def verbose_flag(self):
+        return self._verbose_flag
 
     required_libs = ['libgfortran']
 
@@ -190,6 +198,73 @@ def test_implicit_rpaths(dirs_with_libfiles, monkeypatch):
     compiler = MockCompiler()
     retrieved_rpaths = compiler.implicit_rpaths()
     assert set(retrieved_rpaths) == expected_rpaths
+
+
+no_flag_dirs = ['/path/to/first/lib', '/path/to/second/lib64']
+no_flag_output = 'ld -L%s -L%s' % tuple(no_flag_dirs)
+
+flag_dirs = ['/path/to/first/with/flag/lib', '/path/to/second/lib64']
+flag_output = 'ld -L%s -L%s' % tuple(flag_dirs)
+
+
+def call_compiler(exe, *args, **kwargs):
+    # This method can replace Executable.__call__ to emulate a compiler that
+    # changes libraries depending on a flag.
+    if '--correct-flag' in exe.exe:
+        return flag_output
+    return no_flag_output
+
+
+@pytest.mark.parametrize('exe,flagname', [
+    ('cxx', ''),
+    ('cxx', 'cxxflags'),
+    ('cxx', 'cppflags'),
+    ('cxx', 'ldflags'),
+    ('cc', ''),
+    ('cc', 'cflags'),
+    ('cc', 'cppflags'),
+    ('fc', ''),
+    ('fc', 'fflags'),
+    ('f77', 'fflags'),
+    ('f77', 'cppflags'),
+])
+def test_get_compiler_link_paths(monkeypatch, exe, flagname):
+    # create fake compiler that emits mock verbose output
+    compiler = MockCompiler()
+    monkeypatch.setattr(
+        spack.util.executable.Executable, '__call__', call_compiler)
+
+    # Grab executable path to test
+    paths = [getattr(compiler, exe)]
+
+    # Test without flags
+    dirs = compiler._get_compiler_link_paths(paths)
+    assert dirs == no_flag_dirs
+
+    if flagname:
+        # set flags and test
+        setattr(compiler, 'flags', {flagname: ['--correct-flag']})
+        dirs = compiler._get_compiler_link_paths(paths)
+        assert dirs == flag_dirs
+
+
+def test_get_compiler_link_paths_no_path():
+    compiler = MockCompiler()
+    compiler.cc = None
+    compiler.cxx = None
+    compiler.f77 = None
+    compiler.fc = None
+
+    dirs = compiler._get_compiler_link_paths([compiler.cxx])
+    assert dirs == []
+
+
+def test_get_compiler_link_paths_no_verbose_flag():
+    compiler = MockCompiler()
+    compiler._verbose_flag = None
+
+    dirs = compiler._get_compiler_link_paths([compiler.cxx])
+    assert dirs == []
 
 
 # Get the desired flag from the specified compiler spec.
@@ -241,6 +316,8 @@ def test_default_flags():
     supported_flag_test("cxx_pic_flag", "-fPIC")
     supported_flag_test("f77_pic_flag", "-fPIC")
     supported_flag_test("fc_pic_flag",  "-fPIC")
+    supported_flag_test("debug_flags", ["-g"])
+    supported_flag_test("opt_flags", ["-O", "-O0", "-O1", "-O2", "-O3"])
 
 
 # Verify behavior of particular compiler definitions.
@@ -255,6 +332,9 @@ def test_arm_flags():
     supported_flag_test("cxx_pic_flag", "-fPIC", "arm@1.0")
     supported_flag_test("f77_pic_flag", "-fPIC", "arm@1.0")
     supported_flag_test("fc_pic_flag",  "-fPIC", "arm@1.0")
+    supported_flag_test("opt_flags",
+                        ['-O', '-O0', '-O1', '-O2', '-O3', '-Ofast'],
+                        'arm@1.0')
 
 
 def test_cce_flags():
@@ -269,6 +349,8 @@ def test_cce_flags():
     supported_flag_test("cxx_pic_flag", "-h PIC", "cce@1.0")
     supported_flag_test("f77_pic_flag", "-h PIC", "cce@1.0")
     supported_flag_test("fc_pic_flag",  "-h PIC", "cce@1.0")
+    supported_flag_test("debug_flags", ['-g', '-G0', '-G1', '-G2', '-Gfast'],
+                        'cce@1.0')
 
 
 def test_clang_flags():
@@ -307,6 +389,15 @@ def test_clang_flags():
     supported_flag_test("cxx_pic_flag", "-fPIC", "clang@3.3")
     supported_flag_test("f77_pic_flag", "-fPIC", "clang@3.3")
     supported_flag_test("fc_pic_flag",  "-fPIC", "clang@3.3")
+    supported_flag_test("debug_flags",
+                        ['-gcodeview', '-gdwarf-2', '-gdwarf-3', '-gdwarf-4',
+                         '-gdwarf-5', '-gline-tables-only', '-gmodules', '-gz',
+                         '-g'],
+                        'clang@3.3')
+    supported_flag_test("opt_flags",
+                        ['-O0', '-O1', '-O2', '-O3', '-Ofast', '-Os', '-Oz',
+                         '-Og', '-O', '-O4'],
+                        'clang@3.3')
 
 
 def test_fj_flags():
@@ -320,6 +411,8 @@ def test_fj_flags():
     supported_flag_test("cxx_pic_flag", "-KPIC", "fj@4.0.0")
     supported_flag_test("f77_pic_flag", "-KPIC", "fj@4.0.0")
     supported_flag_test("fc_pic_flag",  "-KPIC", "fj@4.0.0")
+    supported_flag_test("opt_flags", ['-O', '-O0', '-O1', '-O2', '-O3', '-O4'],
+                        'fj@4.0.0')
 
 
 def test_gcc_flags():
@@ -345,6 +438,14 @@ def test_gcc_flags():
     supported_flag_test("f77_pic_flag", "-fPIC", "gcc@4.0")
     supported_flag_test("fc_pic_flag",  "-fPIC", "gcc@4.0")
     supported_flag_test("stdcxx_libs", ("-lstdc++",), "gcc@4.1")
+    supported_flag_test("debug_flags",
+                        ['-g', '-gstabs+', '-gstabs', '-gxcoff+', '-gxcoff',
+                         '-gvms'],
+                        'gcc@4.0')
+    supported_flag_test("opt_flags",
+                        ['-O', '-O0', '-O1', '-O2', '-O3', '-Os', '-Ofast',
+                         '-Og'],
+                        'gcc@4.0')
 
 
 def test_intel_flags():
@@ -365,6 +466,12 @@ def test_intel_flags():
     supported_flag_test("f77_pic_flag", "-fPIC", "intel@1.0")
     supported_flag_test("fc_pic_flag",  "-fPIC", "intel@1.0")
     supported_flag_test("stdcxx_libs", ("-cxxlib",), "intel@1.0")
+    supported_flag_test("debug_flags",
+                        ['-debug', '-g', '-g0', '-g1', '-g2', '-g3'],
+                        'intel@1.0')
+    supported_flag_test("opt_flags",
+                        ['-O', '-O0', '-O1', '-O2', '-O3', '-Ofast', '-Os'],
+                        'intel@1.0')
 
 
 def test_nag_flags():
@@ -379,6 +486,9 @@ def test_nag_flags():
     supported_flag_test("f77_rpath_arg", "-Wl,-Wl,,-rpath,,", "nag@1.0")
     supported_flag_test("fc_rpath_arg",  "-Wl,-Wl,,-rpath,,", "nag@1.0")
     supported_flag_test("linker_arg", "-Wl,-Wl,,", "nag@1.0")
+    supported_flag_test("debug_flags", ['-g', '-gline', '-g90'], 'nag@1.0')
+    supported_flag_test("opt_flags", ['-O', '-O0', '-O1', '-O2', '-O3', '-O4'],
+                        'nag@1.0')
 
 
 def test_pgi_flags():
@@ -392,6 +502,9 @@ def test_pgi_flags():
     supported_flag_test("cxx_pic_flag", "-fpic", "pgi@1.0")
     supported_flag_test("f77_pic_flag", "-fpic", "pgi@1.0")
     supported_flag_test("fc_pic_flag",  "-fpic", "pgi@1.0")
+    supported_flag_test("debug_flags", ['-g', '-gopt'], 'pgi@1.0')
+    supported_flag_test("opt_flags", ['-O', '-O0', '-O1', '-O2', '-O3', '-O4'],
+                        'pgi@1.0')
 
 
 def test_xl_flags():
@@ -409,6 +522,13 @@ def test_xl_flags():
     supported_flag_test("f77_pic_flag", "-qpic", "xl@1.0")
     supported_flag_test("fc_pic_flag",  "-qpic", "xl@1.0")
     supported_flag_test("fflags", "-qzerosize", "xl@1.0")
+    supported_flag_test("debug_flags",
+                        ['-g', '-g0', '-g1', '-g2', '-g8', '-g9'],
+                        'xl@1.0')
+    supported_flag_test("opt_flags",
+                        ['-O', '-O0', '-O1', '-O2', '-O3', '-O4', '-O5',
+                         '-Ofast'],
+                        'xl@1.0')
 
 
 def test_xl_r_flags():
@@ -426,6 +546,13 @@ def test_xl_r_flags():
     supported_flag_test("f77_pic_flag", "-qpic", "xl_r@1.0")
     supported_flag_test("fc_pic_flag",  "-qpic", "xl_r@1.0")
     supported_flag_test("fflags", "-qzerosize", "xl_r@1.0")
+    supported_flag_test("debug_flags",
+                        ['-g', '-g0', '-g1', '-g2', '-g8', '-g9'],
+                        'xl@1.0')
+    supported_flag_test("opt_flags",
+                        ['-O', '-O0', '-O1', '-O2', '-O3', '-O4', '-O5',
+                         '-Ofast'],
+                        'xl@1.0')
 
 
 @pytest.mark.parametrize('version_str,expected_version', [
