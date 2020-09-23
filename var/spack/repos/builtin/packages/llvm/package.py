@@ -66,6 +66,8 @@ class Llvm(CMakePackage):
     variant('build_type', default='Release',
             description='CMake build type',
             values=('Debug', 'Release', 'RelWithDebInfo', 'MinSizeRel'))
+    variant('omp_tsan', default=False,
+            description="Build with OpenMP capable thread sanitizer")
     variant('python', default=False, description="Install python bindings")
     extends('python', when='+python')
 
@@ -576,8 +578,15 @@ class Llvm(CMakePackage):
     conflicts('%gcc@8:',       when='@:5')
     conflicts('%gcc@:5.0.999', when='@8:')
 
+    # OMP TSAN exists in > 5.x
+    conflicts('+omp_tsan', when='@:5.99')
+
     # Github issue #4986
     patch('llvm_gcc7.patch', when='@4.0.0:4.0.1+lldb %gcc@7.0:')
+    # Backport from llvm master + additional fix
+    # see  https://bugs.llvm.org/show_bug.cgi?id=39696
+    # for a bug report about this problem in llvm master.
+    patch('constexpr_longdouble.patch', when='@7:8+libcxx')
 
     @run_before('cmake')
     def check_darwin_lldb_codesign_requirement(self):
@@ -674,20 +683,30 @@ class Llvm(CMakePackage):
                 # hence the test to see if the version starts with "flang".
                 targets.append('CppBackend')
 
-            if 'x86' in spec.architecture.target.lower():
+            if spec.target.family == 'x86' or spec.target.family == 'x86_64':
                 targets.append('X86')
-            elif 'arm' in spec.architecture.target.lower():
+            elif spec.target.family == 'arm':
                 targets.append('ARM')
-            elif 'aarch64' in spec.architecture.target.lower():
+            elif spec.target.family == 'aarch64':
                 targets.append('AArch64')
-            elif 'sparc' in spec.architecture.target.lower():
+            elif (spec.target.family == 'sparc' or
+                  spec.target.family == 'sparc64'):
                 targets.append('Sparc')
-            elif ('ppc' in spec.architecture.target.lower() or
-                  'power' in spec.architecture.target.lower()):
+            elif (spec.target.family == 'ppc64' or
+                  spec.target.family == 'ppc64le' or
+                  spec.target.family == 'ppc' or
+                  spec.target.family == 'ppcle'):
                 targets.append('PowerPC')
 
             cmake_args.append(
                 '-DLLVM_TARGETS_TO_BUILD:STRING=' + ';'.join(targets))
+
+        if '+omp_tsan' in spec:
+            cmake_args.append('-DLIBOMP_TSAN_SUPPORT=ON')
+
+        if self.compiler.name == 'gcc':
+            gcc_prefix = ancestor(self.compiler.cc, 2)
+            cmake_args.append('-DGCC_INSTALL_PREFIX=' + gcc_prefix)
 
         if spec.satisfies('@4.0.0:') and spec.satisfies('platform=linux'):
             cmake_args.append('-DCMAKE_BUILD_WITH_INSTALL_RPATH=1')
