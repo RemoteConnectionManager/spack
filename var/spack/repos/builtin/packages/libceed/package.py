@@ -1,4 +1,4 @@
-# Copyright 2013-2019 Lawrence Livermore National Security, LLC and other
+# Copyright 2013-2020 Lawrence Livermore National Security, LLC and other
 # Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
@@ -62,10 +62,6 @@ class Libceed(Package):
                 opt = '-g'
             elif compiler.name == 'gcc':
                 opt = '-O3 -g -ffp-contract=fast'
-                if compiler.target in ['x86_64']:
-                    opt += ' -march=native'
-                elif compiler.target in ['ppc64le']:
-                    opt += ' -mcpu=native -mtune=native'
                 if compiler.version >= ver(4.9):
                     opt += ' -fopenmp-simd'
             elif compiler.name == 'clang':

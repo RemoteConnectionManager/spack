@@ -1,4 +1,4 @@
-# Copyright 2013-2019 Lawrence Livermore National Security, LLC and other
+# Copyright 2013-2020 Lawrence Livermore National Security, LLC and other
 # Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
@@ -101,7 +101,7 @@ class Mesa(AutotoolsPackage):
         args_gallium_drivers = ['swrast']
         args_dri_drivers = []
 
-        if spec.target.family == 'arm':
+        if spec.target.family == 'arm' or spec.target.family == 'aarch64':
             args.append('--disable-libunwind')
 
         num_frontends = 0
@@ -174,3 +174,11 @@ class Mesa(AutotoolsPackage):
         args.append('--with-dri-drivers=' + ','.join(args_dri_drivers))
 
         return args
+
+    @property
+    def libs(self):
+        for dir in ['lib64', 'lib']:
+            libs = find_libraries('libGL', join_path(self.prefix, dir),
+                                  shared=True, recursive=False)
+            if libs:
+                return libs
