@@ -72,4 +72,4 @@ class GobjectIntrospection(Package):
         make("install")
 
     def setup_build_environment(self, env):
-        env.set('SPACK_SBANG', "%s/bin/sbang" % spack_root)
+        env.set('SPACK_SBANG', "%s/sbang" % spack.store.layout.root)
