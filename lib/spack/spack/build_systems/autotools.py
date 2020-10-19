@@ -128,7 +128,7 @@ class AutotoolsPackage(PackageBase):
         if 'automake' in self.spec:
             automake_path = os.path.join(self.spec['automake'].prefix, 'share',
                                          'automake-' +
-                                         str(self.spec['automake'].version))
+                                         str(self.spec['automake'].version.up_to(2)))
             path = os.path.join(automake_path, 'config.guess')
             if os.path.exists(path):
                 config_guess = path
