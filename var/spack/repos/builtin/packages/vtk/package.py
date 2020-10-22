@@ -20,6 +20,7 @@ class Vtk(CMakePackage):
 
     maintainers = ['chuckatkins', 'danlipsa']
 
+    version('9.0.1', sha256='1b39a5e191c282861e7af4101eaa8585969a2de05f5646c9199a161213a622c7')
     version('8.2.0', sha256='34c3dc775261be5e45a8049155f7228b6bd668106c72a3c435d95730d17d57bb')
     version('8.1.2', sha256='0995fb36857dd76ccfb8bb07350c214d9f9099e80b1e66b4a8909311f24ff0db')
     version('8.1.1', sha256='71a09b4340f0a9c58559fe946dc745ab68a866cf20636a41d97b6046cb736324')
@@ -38,6 +39,7 @@ class Vtk(CMakePackage):
     variant('xdmf', default=False, description='Build XDMF file support')
     variant('ffmpeg', default=False, description='Build with FFMPEG support')
     variant('mpi', default=True, description='Enable MPI support')
+    variant('examples', default=False, description='Build examples')
 
     patch('gcc.patch', when='@6.1.0')
 
@@ -107,6 +109,9 @@ class Vtk(CMakePackage):
     def cmake_args(self):
         spec = self.spec
 
+        def on_off(varstr):
+            return 'ON' if varstr in spec else 'OFF'
+
         opengl_ver = 'OpenGL{0}'.format('2' if '+opengl2' in spec else '')
 
         cmake_args = [
@@ -161,6 +166,7 @@ class Vtk(CMakePackage):
             cmake_args.extend([
                 '-DVTK_WRAP_PYTHON=ON',
                 '-DPYTHON_EXECUTABLE={0}'.format(spec['python'].command.path),
+                '-DVTK_PYTHON_VERSION={0}'.format(spec['python'].version.up_to(1))
             ])
             if '+mpi' in spec:
                 cmake_args.append('-DVTK_USE_SYSTEM_MPI4PY:BOOL=ON')
@@ -281,5 +287,7 @@ class Vtk(CMakePackage):
             if '%intel' in spec and spec.version >= Version('8.2'):
                 cmake_args.append(
                     '-DVTK_MODULE_ENABLE_VTK_IOMotionFX:BOOL=OFF')
+        cmake_args.append(
+            '-DBUILD_EXAMPLES={0}'.format(on_off('+examples')))
 
         return cmake_args
