@@ -158,6 +158,9 @@ class Qt(Package):
     # Non-macOS dependencies and special macOS constraints
     if MACOS_VERSION is None:
         depends_on("fontconfig", when='freetype=spack')
+        depends_on("libsm")
+        depends_on("keyutils")
+        depends_on("krb5")
         depends_on("libx11")
         depends_on("libxcb")
         depends_on("libxkbcommon")
@@ -361,7 +364,6 @@ class Qt(Package):
     @property
     def common_config_args(self):
         # incomplete list is here http://doc.qt.io/qt-5/configure-options.html
-        openssl = self.spec['openssl']
         config_args = [
             '-prefix', self.prefix,
             '-v',
@@ -373,6 +375,11 @@ class Qt(Package):
             '-no-pch',
         ]
 
+        if '+opengl' in self.spec:
+            opengl = self.spec['opengl']
+            config_args.extend([
+                '-I{0}'.format(opengl.prefix.include)
+            ])
         if self.spec.variants['freetype'].value == 'spack':
             config_args.extend([
                 '-system-freetype',
@@ -387,6 +394,7 @@ class Qt(Package):
             config_args.append('-no-freetype')
 
         if '+ssl' in self.spec:
+            openssl = self.spec['openssl']
             config_args.extend([
                 '-openssl-linked',
                 openssl.libs.search_flags,
