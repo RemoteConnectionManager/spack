@@ -93,9 +93,9 @@ class NetcdfC(AutotoolsPackage):
     )
 
     # The patch for 4.7.0 touches configure.ac. See force_autoreconf below.
-    depends_on('autoconf', type='build', when='@4.7.0')
-    depends_on('automake', type='build', when='@4.7.0')
-    depends_on('libtool', type='build', when='@4.7.0')
+    depends_on('autoconf', type='build', when='@4.7.0:')
+    depends_on('automake', type='build', when='@4.7.0:')
+    depends_on('libtool', type='build', when='@4.7.0:')
 
     depends_on("m4", type='build')
     depends_on("hdf", when='+hdf4')
