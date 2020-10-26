@@ -19,3 +19,7 @@ class Videoproto(AutotoolsPackage, XorgPackage):
 
     depends_on('pkgconfig', type='build')
     depends_on('util-macros', type='build')
+    depends_on('autoconf', type='build')
+    depends_on('automake', type='build')
+    depends_on('m4', type='build')
+
