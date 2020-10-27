@@ -478,7 +478,7 @@ class Root(CMakePackage):
             add_include_path('xproto')
         if '+opengl' in self.spec:
             add_include_path('glew')
-            add_include_path('mesa-glu')
+            add_include_path('glu')
 
     def setup_run_environment(self, env):
         env.set('ROOTSYS', self.prefix)
